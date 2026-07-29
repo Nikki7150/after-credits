@@ -37,6 +37,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "131a4179-e8e7-4d79-86a7-b68bc74bba03"
+      }
+    },
+    "owner": "nishka150s-team"
   }
 }

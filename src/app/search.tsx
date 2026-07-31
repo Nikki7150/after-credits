@@ -20,21 +20,22 @@ export default function SearchScreen() {
     };
     return (
         <View style={styles.container}>
-            <Text>Search - Coming soon</Text>
-            <TextInput
-                placeholder="Search for shows..."
-                style={styles.textInput}
-                value={query}
-                onChangeText={(text) => setQuery(text)}
-                onSubmitEditing={() => {
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                <TextInput
+                    placeholder="Search for shows..."
+                    style={styles.textInput}
+                    value={query}
+                    onChangeText={(text) => setQuery(text)}
+                    onSubmitEditing={() => {
+                        handleSearch();
+                    }}
+                />
+                <Pressable onPress={() => {
                     handleSearch();
-                }}
-            />
-            <Pressable onPress={() => {
-                handleSearch();
-            }}>
-                <Text>Search</Text>
-            </Pressable>
+                }} style={{ padding: 10, backgroundColor: 'lightblue', borderRadius: 5, marginTop: 20 }}>
+                    <Text>S</Text>
+                </Pressable>
+            </View>
             {loading && <Text>Loading...</Text>}
             <FlatList
                 data={results}
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingTop: 50,
     },
     textInput: {
         height: 40,

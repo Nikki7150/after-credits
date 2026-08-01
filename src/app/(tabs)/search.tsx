@@ -18,6 +18,7 @@ export default function SearchScreen() {
             setLoading(false);
         }
     };
+
     return (
         <View style={styles.container}>
             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>

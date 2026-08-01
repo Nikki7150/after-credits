@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TextInput, Pressable, FlatList, Image } from 'react-native';
 import { useState } from 'react';
 import { IMAGE_BASE_URL, searchShows } from '@/lib/tmdb';
+import { supabase } from '@/lib/supabase';
 export default function SearchScreen() {
     const [results, setResults] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -16,6 +17,31 @@ export default function SearchScreen() {
             console.error('Error searching shows:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSave = async (item: any) => {
+        // 1. get the current user id
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            console.error('No user found');
+            return;
+        }
+        // 2. call supabase.from('shows').insert({...}) with the right fields mapped from item
+        const { error } = await supabase.from('shows').insert({
+            user_id: user.id,
+            title: item.title || item.name,
+            release_date: item.release_date || item.first_air_date,
+            poster_path: item.poster_path,
+            media_type: item.media_type,
+            tmdb_id: item.id,
+            language: item.original_language,
+        });
+        // 3. log or alert success/failure
+        if (error) {
+            console.error('Error saving show:', error);
+        } else {
+            console.log('Show saved successfully');
         }
     };
 
@@ -48,9 +74,14 @@ export default function SearchScreen() {
                                 style={{ width: 60, height: 90 }} 
                             />
                         }
-                        <View>
-                            <Text>{item.media_type === 'movie' ? item.title : item.name}</Text>
-                            <Text>{item.media_type === 'movie' ? (item.release_date === '' ? 'TBA' : item.release_date.split('-')[0]) : (item.first_air_date === '' ? 'TBA' : item.first_air_date.split('-')[0])}</Text>
+                        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                            <View>
+                                <Text>{item.media_type === 'movie' ? item.title : item.name}</Text>
+                                <Text>{item.media_type === 'movie' ? (item.release_date === '' ? 'TBA' : item.release_date.split('-')[0]) : (item.first_air_date === '' ? 'TBA' : item.first_air_date.split('-')[0])}</Text>
+                            </View>
+                            <Pressable onPress={() => handleSave(item)} style={{ padding: 10, backgroundColor: 'lightgray', borderRadius: 5, marginLeft: 'auto' }}>
+                                <Text>+</Text>
+                            </Pressable>
                         </View>
                     </View>
                 )}

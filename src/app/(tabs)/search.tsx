@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, TextInput, Pressable, FlatList, Image } from 'r
 import { useState } from 'react';
 import { IMAGE_BASE_URL, searchShows } from '@/lib/tmdb';
 import { supabase } from '@/lib/supabase';
+import { ShowListItem } from '@/components/show-list-item';
+
 export default function SearchScreen() {
     const [results, setResults] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -67,22 +69,21 @@ export default function SearchScreen() {
             <FlatList
                 data={results}
                 renderItem={({ item }) => (
-                    <View style={{ flexDirection: 'row', gap: 10, padding: 10 }}>
-                        {item.poster_path &&
-                            <Image 
-                                source={{ uri: `${IMAGE_BASE_URL}${item.poster_path}` }} 
-                                style={{ width: 60, height: 90 }} 
+                    <View style={{ flexDirection: 'row', gap: 10, padding: 10, alignItems: 'center' }}>
+                        <View style={{ flex: 1 }}>
+                            <ShowListItem
+                                title={item.media_type === 'movie' ? item.title : item.name}
+                                year={
+                                    item.media_type === 'movie'
+                                        ? (item.release_date === '' ? 'TBA' : item.release_date.split('-')[0])
+                                        : (item.first_air_date === '' ? 'TBA' : item.first_air_date.split('-')[0])
+                                }
+                                posterPath={item.poster_path}
                             />
-                        }
-                        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                            <View>
-                                <Text>{item.media_type === 'movie' ? item.title : item.name}</Text>
-                                <Text>{item.media_type === 'movie' ? (item.release_date === '' ? 'TBA' : item.release_date.split('-')[0]) : (item.first_air_date === '' ? 'TBA' : item.first_air_date.split('-')[0])}</Text>
-                            </View>
-                            <Pressable onPress={() => handleSave(item)} style={{ padding: 10, backgroundColor: 'lightgray', borderRadius: 5, marginLeft: 'auto' }}>
-                                <Text>+</Text>
-                            </Pressable>
                         </View>
+                        <Pressable onPress={() => handleSave(item)} style={{ padding: 10, backgroundColor: 'lightgray', borderRadius: 5, marginLeft: 'auto' }}>
+                            <Text>+</Text>
+                        </Pressable>
                     </View>
                 )}
                 keyExtractor={(item) => item.id.toString()}
@@ -94,16 +95,14 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 50,
+        paddingTop: 60,
+        paddingHorizontal: 16,
     },
     textInput: {
         height: 40,
         borderColor: 'gray',
         borderWidth: 1,
         paddingHorizontal: 10,
-        marginTop: 20,
-        width: '80%',
+        flex: 1,
     },
 });

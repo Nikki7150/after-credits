@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
+import { ShowListItem } from '@/components/show-list-item';
 
 export default function WatchlistScreen() {
   const [results, setResults] = useState<any[]>([]);
@@ -47,10 +48,15 @@ export default function WatchlistScreen() {
           data={results}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <ThemedText type="smallBold">{item.title}</ThemedText>
+            <ShowListItem
+              title={item.title}
+              year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
+              posterPath={item.poster_path}
+            />
           )}
           refreshing={loading}
           onRefresh={() => {fetchShows()}}
+          style={{ alignSelf: 'stretch' }}
         />
       </SafeAreaView>
     </ThemedView>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { supabase } from "@/lib/supabase";
-import { IMAGE_BASE_URL } from "@/lib/tmdb";
+import { getShowDetails, IMAGE_BASE_URL } from "@/lib/tmdb";
 
 export default function ShowDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -40,6 +40,33 @@ export default function ShowDetailScreen() {
     useEffect(() => {
         if (show) {
             setText(show.notes ?? '');
+        }
+    }, [show]);
+
+    useEffect(() => {
+        if (show && show.genres === null && show.cast_members === null) {
+            const fetchExtraDetails = async () => {
+                try {
+                    setLoading(true);
+                    const response = await getShowDetails(show.tmdb_id, show.media_type);
+                    const genreNames = response.genres ? response.genres.map((g: { name: any; }) => g.name) : [];
+                    const castNames = response.credits?.cast ? response.credits.cast.slice(0, 10).map((c: { name: any; }) => c.name) : [];
+                    const { error } = await supabase
+                        .from('shows')
+                        .update({
+                            genres: genreNames,
+                            cast_members: castNames
+                        })
+                        .eq('id', id);
+                    if (error) throw error;
+                    setShow({...show, genres: genreNames, cast_members: castNames});
+                } catch (err) {
+                    console.error('Error fetching extra details: ', err);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchExtraDetails();
         }
     }, [show]);
 
@@ -132,6 +159,12 @@ export default function ShowDetailScreen() {
             <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')}>
                 <Text>{show.status === 'watched' ? 'Watched' : 'Want to Watch'}</Text>
             </Pressable>
+            {show.genres && show.genres.length > 0 && (
+                <Text style={styles.meta}>{show.genres.join(', ')}</Text>
+            )}
+            {show.cast_members && show.cast_members.length > 0 && (
+                <Text style={styles.meta}>Cast: {show.cast_members.join(', ')}</Text>
+            )}
         </SafeAreaView>
     );
 }
@@ -175,5 +208,12 @@ const styles = StyleSheet.create({
     },
     checkButton: {
 
-    }
+    },
+    meta: {
+        fontSize: 14,
+        color: 'gray',
+        textAlign: 'center',
+        marginTop: 8,
+        paddingHorizontal: 16,
+    },
 })

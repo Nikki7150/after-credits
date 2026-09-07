@@ -21,3 +21,21 @@ export async function searchShows(query: string) {
     const json = await response.json();
     return json.results;
 }
+
+export async function getShowDetails(tmdbId: number, mediaType: 'movie' | 'tv') {
+    const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
+    const response = await fetch(
+        `${BASE_URL}/${endpoint}/${tmdbId}?append_to_response=credits`,
+        {
+            headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                accept: 'application/json',
+            },
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(`TMDB details request failed: ${response.status}`);
+    }
+    return response.json();
+}

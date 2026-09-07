@@ -1,7 +1,7 @@
 import * as Device from 'expo-device';
-import { FlatList, Platform, StyleSheet } from 'react-native';
+import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router'; // runs every time screen in focus
+import { Link, useFocusEffect } from 'expo-router'; // runs every time screen in focus
 import { useCallback, useState } from 'react';
 
 import { ThemedText } from '@/components/themed-text';
@@ -15,6 +15,7 @@ export default function WatchlistScreen() {
   const [loading, setLoading] = useState(false);
 
   const fetchShows = useCallback(async () => {
+    console.log('fetchshows: starting');
     setLoading(true);
       try {
         const { data, error } = await supabase
@@ -22,6 +23,7 @@ export default function WatchlistScreen() {
           .select('*')
           .eq('status', 'want_to_watch')
           .order('created_at', { ascending: false });
+        console.log('fetchShows: got response', { data, error });
         if (error) {
           console.error('Error fetching shows:', error);
         } else if (data) {
@@ -44,18 +46,21 @@ export default function WatchlistScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ThemedText type="title">Watchlist</ThemedText>
         <ThemedText type="small">Want to Watch</ThemedText>
+        {loading && <ThemedText type="small">Refreshing...</ThemedText>}
         <FlatList
           data={results}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <ShowListItem
-              title={item.title}
-              year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
-              posterPath={item.poster_path}
-            />
+            <Link href={`/show/${item.id}`} asChild>
+              <Pressable>
+                <ShowListItem
+                  title={item.title}
+                  year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
+                  posterPath={item.poster_path}
+                />
+              </Pressable>
+            </Link>
           )}
-          refreshing={loading}
-          onRefresh={() => {fetchShows()}}
           style={{ alignSelf: 'stretch' }}
         />
       </SafeAreaView>

@@ -68,6 +68,15 @@ export default function ShowDetailScreen() {
         if (error) console.error('error updating rating: ', error);
     };
 
+    const handleStatus = async (newStatus: string) => {
+        setShow({...show, status: newStatus });
+        const { error } = await supabase
+            .from('shows')
+            .update({ status: newStatus })
+            .eq('id', id);
+        if (error) console.error('error updating rating: ', error);
+    };
+
     const handleSaveNotes = async () => {
         setSave(true);
         const { error } = await supabase
@@ -114,12 +123,15 @@ export default function ShowDetailScreen() {
             />
             {text.length > 0 && (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 10, paddingRight: 10, paddingTop: 5 }}>
-                    <Pressable onPress={handleSaveNotes} style={styles.checkButton}>
+                    <Pressable onPress={() => handleSaveNotes} style={styles.checkButton}>
                         <Text>✓</Text>
                     </Pressable>
                     <Text>{save ? 'Saving' : 'Saved'}</Text>
                 </View>
             )}
+            <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')}>
+                <Text>{show.status === 'watched' ? 'Watched' : 'Want to Watch'}</Text>
+            </Pressable>
         </SafeAreaView>
     );
 }

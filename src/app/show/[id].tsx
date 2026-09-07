@@ -12,6 +12,7 @@ export default function ShowDetailScreen() {
     const [loading, setLoading] = useState(false);
     const [show, setShow] = useState<any>(null);
     const [text, setText] = useState('');
+    const [save, setSave] = useState(false);
 
     useEffect(() => {
         const fetchShowDetails = async () => {
@@ -36,6 +37,12 @@ export default function ShowDetailScreen() {
         fetchShowDetails();
     }, [id]);
 
+    useEffect(() => {
+        if (show) {
+            setText(show.notes ?? '');
+        }
+    }, [show]);
+
     if (loading) {
         return (
             <View style={styles.center}>
@@ -59,6 +66,18 @@ export default function ShowDetailScreen() {
             .update({ rating: newRating })
             .eq('id', id);
         if (error) console.error('error updating rating: ', error);
+    };
+
+    const handleSaveNotes = async () => {
+        setSave(true);
+        const { error } = await supabase
+            .from('shows')
+            .update({ notes: text })
+            .eq('id', id);
+        if (error) console.error('Error saving notes: ', error);
+        setTimeout(() => {
+            setSave(false);
+        }, 2000);
     };
 
     return (
@@ -90,9 +109,17 @@ export default function ShowDetailScreen() {
                 multiline={true}
                 onChangeText={(value) => setText(value)}
                 value={text}
-                placeholder="Type something here..."
+                placeholder="Put your thoughts here..."
                 placeholderTextColor="#999"
             />
+            {text.length > 0 && (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 10, paddingRight: 10, paddingTop: 5 }}>
+                    <Pressable onPress={handleSaveNotes} style={styles.checkButton}>
+                        <Text>✓</Text>
+                    </Pressable>
+                    <Text>{save ? 'Saving' : 'Saved'}</Text>
+                </View>
+            )}
         </SafeAreaView>
     );
 }
@@ -129,8 +156,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "stretch",
         borderWidth: 2,
-        height: 50,
+        height: undefined,
+        minHeight: 50,
         borderColor: "#d1d1d1",
         padding: 5,
     },
+    checkButton: {
+
+    }
 })

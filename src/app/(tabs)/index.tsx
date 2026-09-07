@@ -23,7 +23,6 @@ export default function WatchlistScreen() {
           .select('*')
           .eq('status', 'want_to_watch')
           .order('created_at', { ascending: false });
-        console.log('fetchShows: got response', { data, error });
         if (error) {
           console.error('Error fetching shows:', error);
         } else if (data) {

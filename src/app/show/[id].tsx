@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { View, Text, Pressable, StyleSheet, Image, TextInput } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList } from "react-native";
 import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -50,7 +50,11 @@ export default function ShowDetailScreen() {
                     setLoading(true);
                     const response = await getShowDetails(show.tmdb_id, show.media_type);
                     const genreNames = response.genres ? response.genres.map((g: { name: any; }) => g.name) : [];
-                    const castNames = response.credits?.cast ? response.credits.cast.slice(0, 10).map((c: { name: any; }) => c.name) : [];
+                    const castNames = response.credits?.cast ? response.credits.cast.slice(0, 10).map((c: { name: any; character: any; profile_path: any; }) => ({
+                        name: c.name,
+                        character: c.character,
+                        profile_path: c.profile_path
+                    })) : [];
                     const { error } = await supabase
                         .from('shows')
                         .update({
@@ -131,10 +135,10 @@ export default function ShowDetailScreen() {
             <Text style={styles.year}>
                 {show.release_date ? show.release_date.split('-')[0] : 'TBA'}
             </Text>
-            <View style={{ flexDirection: 'row', gap: '4' }}>
+            <View style={{ flexDirection: 'row', gap: '4', justifyContent: "center", padding: 10 }}>
                 {[1, 2, 3, 4, 5].map((star) => (
                     <Pressable key={star} onPress={() => handleRating(star)}>
-                        <Text style={{ fontSize: 28, color: '#facb54' }}>
+                        <Text style={{ fontSize: 30, color: '#facb54', textAlign: 'center' }}>
                             {star <= (show.rating ?? 0) ? '★' : '☆'}
                         </Text>
                     </Pressable>
@@ -150,20 +154,38 @@ export default function ShowDetailScreen() {
             />
             {text.length > 0 && (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 10, paddingRight: 10, paddingTop: 5 }}>
-                    <Pressable onPress={() => handleSaveNotes} style={styles.checkButton}>
+                    <Pressable onPress={() => handleSaveNotes}>
                         <Text>✓</Text>
                     </Pressable>
                     <Text>{save ? 'Saving' : 'Saved'}</Text>
                 </View>
             )}
-            <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')}>
-                <Text>{show.status === 'watched' ? 'Watched' : 'Want to Watch'}</Text>
+            <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')} style={show.status === 'want_to_watch' ? styles.wantButton : styles.watchButton}>
+                <Text style={styles.meta1}>{show.status === 'watched' ? '☑ Watched' : '☐ Want to Watch'}</Text>
             </Pressable>
             {show.genres && show.genres.length > 0 && (
                 <Text style={styles.meta}>{show.genres.join(', ')}</Text>
             )}
             {show.cast_members && show.cast_members.length > 0 && (
-                <Text style={styles.meta}>Cast: {show.cast_members.join(', ')}</Text>
+                <FlatList
+                    style={styles.castContainer}
+                    data={show.cast_members}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                        <View style={styles.castCard}>
+                            {item.profile_path && (
+                                <Image
+                                    source={{ uri: `${IMAGE_BASE_URL}${item.profile_path}` }}
+                                    style={styles.castPhoto}
+                                />
+                            )}
+                            <Text style={styles.castName} numberOfLines={1}>{item.name}</Text>
+                            <Text style={styles.castCharacter} numberOfLines={1}>{item.character}</Text>
+                        </View>
+                    )}
+                />
             )}
         </SafeAreaView>
     );
@@ -206,14 +228,54 @@ const styles = StyleSheet.create({
         borderColor: "#d1d1d1",
         padding: 5,
     },
-    checkButton: {
-
-    },
     meta: {
         fontSize: 14,
         color: 'gray',
         textAlign: 'center',
         marginTop: 8,
         paddingHorizontal: 16,
+    },
+    meta1: {
+        fontSize: 20,
+        textAlign: 'center',
+        paddingHorizontal: 16,
+        fontFamily: 'Courier'
+    },
+    castContainer: {
+        padding: 10,
+    },
+    castCard: {
+        width: 100,
+        marginRight: 12,
+    },
+    castPhoto: {
+        width: 100,
+        height: 100,
+        borderRadius: 8,
+    },
+    castName: {
+        fontWeight: 'bold',
+        fontSize: 13,
+        marginTop: 4,
+    },
+    castCharacter: {
+        fontSize: 12,
+        color: 'gray',
+    },
+    wantButton: {
+        backgroundColor: 'white',
+        borderWidth: 2,
+        borderColor: 'gray',
+        padding: 15,
+        margin: 10,
+        borderRadius: 10,
+        textAlign: 'center',
+    },
+    watchButton: {
+        backgroundColor: 'pink',
+        padding: 15,
+        margin: 10,
+        borderRadius: 10,
+        textAlign: 'center',
     },
 })

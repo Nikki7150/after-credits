@@ -1,6 +1,6 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList } from "react-native";
-import { useState, useEffect } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList, ScrollView } from "react-native";
+import { useState, useEffect, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LANGUAGE_NAMES } from "@/lib/languages";
 
@@ -14,6 +14,8 @@ export default function ShowDetailScreen() {
     const [show, setShow] = useState<any>(null);
     const [text, setText] = useState('');
     const [save, setSave] = useState(false);
+    const [collectionsList, setCollectionsList] = useState<any[]>([]);
+    const [isDropdownVisible, setIsDrowdownVisible] = useState(false);
 
     useEffect(() => {
         const fetchShowDetails = async () => {
@@ -37,6 +39,31 @@ export default function ShowDetailScreen() {
         };
         fetchShowDetails();
     }, [id]);
+
+    const fetchCollections = useCallback(async () => {
+            setLoading(true);
+            try {
+                const { data, error } = await supabase
+                    .from('collections')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                if (error) {
+                    console.error('Error fetching shows:', error);
+                } else if (data) {
+                    setCollectionsList(data || []);
+                }
+            } catch (error) {
+                console.error('Error fetching shows:', error);
+            } finally {
+                setLoading(false);
+            }
+        }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchCollections();
+        }, [fetchCollections])
+    );
 
     useEffect(() => {
         if (show) {
@@ -121,84 +148,119 @@ export default function ShowDetailScreen() {
         }, 2000);
     };
 
+    const handleAddToCollection = async (collectionId: string) => {
+        const { error } = await supabase
+            .from('collection_shows')
+            .upsert(
+                {
+                    collection_id: collectionId,
+                    show_id: show.id,
+                },
+                { onConflict: 'collection_id,show_id', ignoreDuplicates: true }
+            );
+        if (error) console.error('error adding to collection: ', error);
+    };
+
     return (
-        <SafeAreaView style={styles.container}>
-            <Pressable onPress={() => router.back()}>
-                <Text>Back</Text>
-            </Pressable>
-            {show.poster_path && (
-                <Image
-                    source={{ uri: `${IMAGE_BASE_URL}${show.poster_path}` }}
-                    style={styles.poster}
-                />
-            )}
-            <Text style={styles.title}>{show.title}</Text>
-            <Text style={styles.year}>
-                {show.release_date ? show.release_date.split('-')[0] : 'TBA'}
-            </Text>
-            <View style={{ flexDirection: 'row', gap: '4', justifyContent: "center", padding: 10 }}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                    <Pressable key={star} onPress={() => handleRating(star)}>
-                        <Text style={{ fontSize: 30, color: '#facb54', textAlign: 'center' }}>
-                            {star <= (show.rating ?? 0) ? '★' : '☆'}
-                        </Text>
-                    </Pressable>
-                ))}
-            </View>
-            <TextInput
-                style={styles.input}
-                multiline={true}
-                onChangeText={(value) => setText(value)}
-                value={text}
-                placeholder="Put your thoughts here..."
-                placeholderTextColor="#999"
-            />
-            {text.length > 0 && (
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 10, paddingRight: 10, paddingTop: 5 }}>
-                    <Pressable onPress={() => handleSaveNotes}>
-                        <Text>✓</Text>
-                    </Pressable>
-                    <Text>{save ? 'Saving' : 'Saved'}</Text>
+        <SafeAreaView style={{ flex: 1 }}>
+            <ScrollView contentContainerStyle={styles.container}>
+                <Pressable onPress={() => router.back()}>
+                    <Text>Back</Text>
+                </Pressable>
+                {show.poster_path && (
+                    <Image
+                        source={{ uri: `${IMAGE_BASE_URL}${show.poster_path}` }}
+                        style={styles.poster}
+                    />
+                )}
+                <Text style={styles.title}>{show.title}</Text>
+                <Text style={styles.year}>
+                    {show.release_date ? show.release_date.split('-')[0] : 'TBA'}
+                </Text>
+                <View style={{ flexDirection: 'row', gap: '4', justifyContent: "center", padding: 10 }}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <Pressable key={star} onPress={() => handleRating(star)}>
+                            <Text style={{ fontSize: 30, color: '#facb54', textAlign: 'center' }}>
+                                {star <= (show.rating ?? 0) ? '★' : '☆'}
+                            </Text>
+                        </Pressable>
+                    ))}
                 </View>
-            )}
-            <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')} style={show.status === 'want_to_watch' ? styles.wantButton : styles.watchButton}>
-                <Text style={styles.meta1}>{show.status === 'watched' ? '☑ Watched' : '☐ Want to Watch'}</Text>
-            </Pressable>
-            {show.genres && show.genres.length > 0 && (
-                <Text style={styles.meta}>{show.genres.join(', ')}</Text>
-            )}
-            {show.cast_members && show.cast_members.length > 0 && (
-                <FlatList
-                    style={styles.castContainer}
-                    data={show.cast_members}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) => (
-                        <View style={styles.castCard}>
-                            {item.profile_path && (
-                                <Image
-                                    source={{ uri: `${IMAGE_BASE_URL}${item.profile_path}` }}
-                                    style={styles.castPhoto}
-                                />
-                            )}
-                            <Text style={styles.castName} numberOfLines={1}>{item.name}</Text>
-                            <Text style={styles.castCharacter} numberOfLines={1}>{item.character}</Text>
-                        </View>
-                    )}
+                <TextInput
+                    style={styles.input}
+                    multiline={true}
+                    onChangeText={(value) => setText(value)}
+                    value={text}
+                    placeholder="Put your thoughts here..."
+                    placeholderTextColor="#999"
                 />
-            )}
-            {show.language && (
-                <Text>{LANGUAGE_NAMES[show.language] ?? show.language}</Text>
-            )}
+                {text.length > 0 && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 10, paddingRight: 10, paddingTop: 5 }}>
+                        <Pressable onPress={() => handleSaveNotes}>
+                            <Text>✓</Text>
+                        </Pressable>
+                        <Text>{save ? 'Saving' : 'Saved'}</Text>
+                    </View>
+                )}
+                <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')} style={show.status === 'want_to_watch' ? styles.wantButton : styles.watchButton}>
+                    <Text style={styles.meta1}>{show.status === 'watched' ? '☑ Watched' : '☐ Want to Watch'}</Text>
+                </Pressable>
+                {show.genres && show.genres.length > 0 && (
+                    <Text style={styles.meta}>{show.genres.join(', ')}</Text>
+                )}
+                {show.cast_members && show.cast_members.length > 0 && (
+                    <FlatList
+                        style={styles.castContainer}
+                        data={show.cast_members}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item }) => (
+                            <View style={styles.castCard}>
+                                {item.profile_path && (
+                                    <Image
+                                        source={{ uri: `${IMAGE_BASE_URL}${item.profile_path}` }}
+                                        style={styles.castPhoto}
+                                    />
+                                )}
+                                <Text style={styles.castName} numberOfLines={1}>{item.name}</Text>
+                                <Text style={styles.castCharacter} numberOfLines={1}>{item.character}</Text>
+                            </View>
+                        )}
+                    />
+                )}
+                {show.language && (
+                    <Text style={styles.meta1}>{LANGUAGE_NAMES[show.language] ?? show.language}</Text>
+                )}
+                <Pressable onPress={() => setIsDrowdownVisible(!isDropdownVisible)} style={styles.collectionButton}>
+                    <Text>Add to Collection</Text>
+                </Pressable>
+                {isDropdownVisible && (
+                    <View>
+                        <FlatList
+                            data={collectionsList}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <Pressable onPress={() => handleAddToCollection(item.id)}>
+                                    <Text>{item.name}</Text>
+                                </Pressable>
+                            )}
+                        />
+                        <Pressable>
+                            <Text>+ New Collection</Text>
+                        </Pressable>
+                    </View>
+                )}
+            </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
         padding: 16,
+        paddingBottom: 40,
     },
     center: {
         flex: 1,
@@ -245,7 +307,8 @@ const styles = StyleSheet.create({
         fontFamily: 'Courier'
     },
     castContainer: {
-        padding: 10,
+        minHeight: 150,
+        paddingVertical: 10,
     },
     castCard: {
         width: 100,
@@ -280,5 +343,10 @@ const styles = StyleSheet.create({
         margin: 10,
         borderRadius: 10,
         textAlign: 'center',
+    },
+    collectionButton: {
+        padding: 10,
+        backgroundColor: 'grey',
+        margin: 10,
     },
 })

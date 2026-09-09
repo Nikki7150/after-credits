@@ -1,51 +1,57 @@
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LANGUAGE_NAMES } from "@/lib/languages";
 
 import { supabase } from "@/lib/supabase";
 import { getShowDetails, IMAGE_BASE_URL } from "@/lib/tmdb";
 import { ShowListItem } from "@/components/show-list-item";
 
-export default function ShowLanguageBucket() {
-    const { language } = useLocalSearchParams<{ language: string }>();
+export default function ShowCollectionDetails() {
+    const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
-    const [shows, setShows] = useState<any[]>([]);
+    const [shows, setShows] = useState<any>(null);
+    const [text, setText] = useState('');
+
+    const fetchShows = useCallback(async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('collection_shows')
+                .select('shows(*)')
+                .eq('collection_id', id); 
+            if (error) {
+                console.error('Error fetching shows:', error);
+            } else if (data) {
+                const showsOnly = data.map((row: any) => row.shows);
+                setShows(showsOnly);
+            }
+        } catch (error) {
+            console.error('Error fetching shows:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, [id]);
 
     useEffect(() => {
-        const fetchShowsByLanguage = async () => {
-            try {
-                setLoading(true);
-                const { data, error } = await supabase
-                    .from('shows')
-                    .select('*')
-                    .eq('language', language)
-                    .order('created_at', { ascending: false });
-                if (error) {
-                    console.error('Error fetching shows:', error);
-                } else if (data) {
-                    setShows(data || []);
-                }
-            } catch (err) {
-                console.error("Error fetching show details:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchShowsByLanguage();
-    }, [language]);
+        fetchShows();
+    }, [fetchShows]);
+
+    if (loading) {
+        return (
+            <View style={styles.center}>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
             <Pressable onPress={() => router.back()}>
                 <Text>Back</Text>
             </Pressable>
-            <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 12 }}>
-                {LANGUAGE_NAMES[language ?? ''] ?? language}
-            </Text>
+            {loading && <Text>Loading...</Text>}
             <FlatList
                 data={shows}
                 keyExtractor={(item) => item.id.toString()}
@@ -75,10 +81,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    addButton: {
-        backgroundColor: 'pink',
-        width: 30,
-        height: 30,
-        borderRadius: '50%',
-    }
 })

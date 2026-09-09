@@ -26,6 +26,9 @@ export default function AppTabs() {
           <TabTrigger name="search" href="/search" asChild>
             <TabButton>Search</TabButton>
           </TabTrigger>
+          <TabTrigger name="collections" href="/collections" asChild>
+            <TabButton>Collections</TabButton>
+          </TabTrigger>
         </CustomTabList>
       </TabList>
     </Tabs>

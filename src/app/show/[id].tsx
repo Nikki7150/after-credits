@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList } from "react-native";
 import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LANGUAGE_NAMES } from "@/lib/languages";
 
 import { supabase } from "@/lib/supabase";
 import { getShowDetails, IMAGE_BASE_URL } from "@/lib/tmdb";
@@ -187,6 +188,9 @@ export default function ShowDetailScreen() {
                     )}
                 />
             )}
+            {show.language && (
+                <Text>{LANGUAGE_NAMES[show.language] ?? show.language}</Text>
+            )}
         </SafeAreaView>
     );
 }
@@ -232,7 +236,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'gray',
         textAlign: 'center',
-        marginTop: 8,
         paddingHorizontal: 16,
     },
     meta1: {

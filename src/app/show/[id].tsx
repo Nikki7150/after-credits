@@ -232,20 +232,17 @@ export default function ShowDetailScreen() {
                 {show.language && (
                     <Text style={styles.meta1}>{LANGUAGE_NAMES[show.language] ?? show.language}</Text>
                 )}
-                <Pressable onPress={() => setIsDrowdownVisible(!isDropdownVisible)} style={styles.collectionButton}>
+                <Pressable onPress={() => setIsDrowdownVisible(!isDropdownVisible)} style={isDropdownVisible ? styles.collectionButton1 : styles.collectionButton}>
                     <Text>Add to Collection</Text>
+                    <Text style={{ fontSize: 10, marginTop: 2 }}>▼</Text>
                 </Pressable>
                 {isDropdownVisible && (
-                    <View>
-                        <FlatList
-                            data={collectionsList}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <Pressable onPress={() => handleAddToCollection(item.id)}>
-                                    <Text>{item.name}</Text>
-                                </Pressable>
-                            )}
-                        />
+                    <View style={styles.dropdown}>
+                        {collectionsList.map((item) => (
+                            <Pressable key={item.id} onPress={() => handleAddToCollection(item.id)} style={styles.dropdownButton}>
+                                <Text>{item.name}</Text>
+                            </Pressable>
+                        ))}
                         <Pressable>
                             <Text>+ New Collection</Text>
                         </Pressable>
@@ -346,7 +343,40 @@ const styles = StyleSheet.create({
     },
     collectionButton: {
         padding: 10,
-        backgroundColor: 'grey',
+        backgroundColor: 'white',
+        borderWidth: 1,
+        borderRadius: 10,
         margin: 10,
+        marginBottom: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
+    collectionButton1: {
+        padding: 10,
+        backgroundColor: 'white',
+        borderWidth: 1,
+        borderRadius: 10,
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
+        margin: 10,
+        marginBottom: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderBottomWidth: 0,
+        paddingBottom: 0,
+    },
+    dropdown: {
+        padding: 10,
+        backgroundColor: 'white',
+        borderWidth: 1,
+        margin: 10,
+        marginTop: 0,
+        borderTopWidth: 0,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        paddingTop: 0,
+    },
+    dropdownButton: {
+        padding: 5,
+    }
 })

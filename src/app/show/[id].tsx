@@ -16,6 +16,7 @@ export default function ShowDetailScreen() {
     const [save, setSave] = useState(false);
     const [collectionsList, setCollectionsList] = useState<any[]>([]);
     const [isDropdownVisible, setIsDrowdownVisible] = useState(false);
+    const [showCollectionNames, setShowCollectionNames] = useState<string[]>([]);
 
     useEffect(() => {
         const fetchShowDetails = async () => {
@@ -41,23 +42,40 @@ export default function ShowDetailScreen() {
     }, [id]);
 
     const fetchCollections = useCallback(async () => {
-            setLoading(true);
-            try {
-                const { data, error } = await supabase
-                    .from('collections')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-                if (error) {
-                    console.error('Error fetching shows:', error);
-                } else if (data) {
-                    setCollectionsList(data || []);
-                }
-            } catch (error) {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('collections')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) {
                 console.error('Error fetching shows:', error);
-            } finally {
-                setLoading(false);
+            } else if (data) {
+                setCollectionsList(data || []);
             }
-        }, []);
+        } catch (error) {
+            console.error('Error fetching shows:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const fetchShowCollections = useCallback(async () => {
+        try {
+            const { data, error } = await supabase
+                .from('collection_shows')
+                .select('collections(name)')
+                .eq('show_id', id);
+            if (error) {
+                console.error('Error fetching show\'s collections: ', error);
+            } else if (data) {
+                const CollectionNames = data.map((row: any) => row.collections?.name).filter(Boolean);
+                setShowCollectionNames(CollectionNames);
+            }
+        } catch (err) {
+            console.error('Error fetching show collections: ', err);
+        }
+    }, [id]);
 
     useFocusEffect(
         useCallback(() => {
@@ -70,6 +88,10 @@ export default function ShowDetailScreen() {
             setText(show.notes ?? '');
         }
     }, [show]);
+
+    useEffect(() => {
+        fetchShowCollections();
+    }, [fetchShowCollections]);
 
     useEffect(() => {
         if (show && show.genres === null && show.cast_members === null) {
@@ -159,6 +181,7 @@ export default function ShowDetailScreen() {
                 { onConflict: 'collection_id,show_id', ignoreDuplicates: true }
             );
         if (error) console.error('error adding to collection: ', error);
+        fetchShowCollections();
     };
 
     return (
@@ -233,7 +256,9 @@ export default function ShowDetailScreen() {
                     <Text style={styles.meta1}>{LANGUAGE_NAMES[show.language] ?? show.language}</Text>
                 )}
                 <Pressable onPress={() => setIsDrowdownVisible(!isDropdownVisible)} style={isDropdownVisible ? styles.collectionButton1 : styles.collectionButton}>
-                    <Text>Add to Collection</Text>
+                    <Text>
+                        {showCollectionNames.length > 0 ? showCollectionNames.join(', ') : 'Add to Collection'}
+                    </Text>
                     <Text style={{ fontSize: 10, marginTop: 2 }}>▼</Text>
                 </Pressable>
                 {isDropdownVisible && (
@@ -378,5 +403,5 @@ const styles = StyleSheet.create({
     },
     dropdownButton: {
         padding: 5,
-    }
+    },
 })

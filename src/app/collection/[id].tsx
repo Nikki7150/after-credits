@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "@/lib/supabase";
 import { getShowDetails, IMAGE_BASE_URL } from "@/lib/tmdb";
 import { ShowListItem } from "@/components/show-list-item";
+import Icon from 'react-native-ico-material-design';
 
 export default function ShowCollectionDetails() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -46,6 +47,19 @@ export default function ShowCollectionDetails() {
         );
     }
 
+    const handleRemoveFromCollection = async (showId: string) => {
+        const { error } = await supabase
+            .from('collection_shows')
+            .delete()
+            .eq('collection_id', id)
+            .eq('show_id', showId);
+        if (error) {
+            console.error('error deleting from watchlist: ', error);
+        } else {
+            fetchShows();
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <Pressable onPress={() => router.back()}>
@@ -56,15 +70,20 @@ export default function ShowCollectionDetails() {
                 data={shows}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <Link href={`/show/${item.id}`} asChild>
-                        <Pressable>
-                            <ShowListItem
-                                title={item.title}
-                                year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
-                                posterPath={item.poster_path}
-                            />
+                    <View style={{ flexDirection: 'row', gap: 10, padding: 10, alignItems: 'center', }}>
+                        <Link href={`/show/${item.id}`} asChild style={{ flex: 1 }}>
+                            <Pressable>
+                                <ShowListItem
+                                    title={item.title}
+                                    year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
+                                    posterPath={item.poster_path}
+                                />
+                            </Pressable>
+                        </Link>
+                        <Pressable onPress={() => handleRemoveFromCollection(item.id)}>
+                            <Text style={{ color: 'red' }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color='red' /></Text>
                         </Pressable>
-                    </Link>
+                    </View>
                 )}
             />
         </SafeAreaView>

@@ -1,11 +1,12 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList, ScrollView, Modal } from "react-native";
 import { useState, useEffect, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LANGUAGE_NAMES } from "@/lib/languages";
 
 import { supabase } from "@/lib/supabase";
 import { getShowDetails, IMAGE_BASE_URL } from "@/lib/tmdb";
+import Icon from 'react-native-ico-material-design';
 
 export default function ShowDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -17,6 +18,9 @@ export default function ShowDetailScreen() {
     const [collectionsList, setCollectionsList] = useState<any[]>([]);
     const [isDropdownVisible, setIsDrowdownVisible] = useState(false);
     const [showCollectionNames, setShowCollectionNames] = useState<string[]>([]);
+    const [collectionName, setCollectionName] = useState('');
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isMenuVisible, setIsMenuVisible] = useState(false);
 
     useEffect(() => {
         const fetchShowDetails = async () => {
@@ -184,12 +188,58 @@ export default function ShowDetailScreen() {
         fetchShowCollections();
     };
 
+    const handleCreateCollection = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            console.error('No user found');
+            return;
+        }
+        const { error } = await supabase.from('collections').insert({
+            user_id: user.id,
+            name: collectionName,
+        });
+        if (error) {
+            console.error('Error saving show:', error);
+        } else {
+            console.log('Show saved successfully');
+            setCollectionName('');
+            fetchCollections();
+        }
+    };
+
+    const handleRemoveFromWatchlist = async () => {
+        const { error } = await supabase
+            .from('shows')
+            .delete()
+            .eq('id', id);
+        if (error) {
+            console.error('error deleting from watchlist: ', error);
+        } else {
+            router.back();
+        }
+        setIsMenuVisible(false);
+    };
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={styles.container}>
-                <Pressable onPress={() => router.back()}>
-                    <Text>Back</Text>
-                </Pressable>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
+                    <Pressable onPress={() => router.back()}>
+                        <Text>Back</Text>
+                    </Pressable>
+                    <Pressable onPress={() => setIsMenuVisible(true)}>
+                        <Text style={{ fontSize: 25, fontWeight: 200, }}>⋮</Text>
+                    </Pressable>
+                </View>
+                <Modal visible={isMenuVisible} transparent animationType="fade">
+                    <Pressable style={{ flex: 1, backgroundColor: 'transparent' }} onPress={() => setIsMenuVisible(false)}>
+                        <View style={{ position: 'absolute', top: 70, right: 30, backgroundColor: 'white', borderRadius: 8, padding: 10, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)' }}>
+                            <Pressable onPress={handleRemoveFromWatchlist}>
+                                <Text style={{ color: 'red' }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color='red' /> Remove from Watchlist</Text>
+                            </Pressable>
+                        </View>
+                    </Pressable>
+                </Modal>
                 {show.poster_path && (
                     <Image
                         source={{ uri: `${IMAGE_BASE_URL}${show.poster_path}` }}
@@ -268,11 +318,31 @@ export default function ShowDetailScreen() {
                                 <Text>{item.name}</Text>
                             </Pressable>
                         ))}
-                        <Pressable>
+                        <Pressable onPress={() => setIsModalVisible(true)}>
                             <Text>+ New Collection</Text>
                         </Pressable>
                     </View>
                 )}
+                <Modal visible={isModalVisible} transparent animationType='fade'>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 12, width: '80%' }}>
+                            <Text>Collection Name: </Text>
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={(value) => setCollectionName(value)}
+                                value={collectionName}
+                                placeholder="Eg. Favorites..."
+                                placeholderTextColor="#999"
+                            />
+                            <Pressable onPress={() => setIsModalVisible(false)}>
+                                <Text>Cancel</Text>
+                            </Pressable>
+                            <Pressable onPress={() => { handleCreateCollection(); setIsModalVisible(false); }}>
+                                <Text>Create</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
             </ScrollView>
         </SafeAreaView>
     );

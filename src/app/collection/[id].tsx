@@ -1,5 +1,5 @@
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image, TextInput, FlatList, Modal, Alert } from "react-native";
 import { useState, useEffect, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,6 +14,7 @@ export default function ShowCollectionDetails() {
     const [loading, setLoading] = useState(false);
     const [shows, setShows] = useState<any>(null);
     const [text, setText] = useState('');
+    const [isMenuVisible, setIsMenuVisible] = useState(false);
 
     const fetchShows = useCallback(async () => {
         setLoading(true);
@@ -60,11 +61,50 @@ export default function ShowCollectionDetails() {
         }
     };
 
+    const handleRemoveCollection = async (collectionId: string) => {
+        Alert.alert(
+            'Delete Collection',
+            'Are you sure you want to delete this collection? This action is permanent.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                    const { error } = await supabase
+                        .from('collections')
+                        .delete()
+                        .eq('id', collectionId);
+                    if (error) {
+                        console.error('Error deleting collection:', error);
+                    } else {
+                        router.back();
+                    }
+                    },
+                },
+            ]
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
-            <Pressable onPress={() => router.back()}>
-                <Text>Back</Text>
-            </Pressable>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
+                <Pressable onPress={() => router.back()}>
+                    <Text>Back</Text>
+                </Pressable>
+                <Pressable onPress={() => setIsMenuVisible(true)}>
+                    <Text style={{ fontSize: 25, fontWeight: 200, }}>⋮</Text>
+                </Pressable>
+            </View>
+            <Modal visible={isMenuVisible} transparent animationType="fade">
+                <Pressable style={{ flex: 1, backgroundColor: 'transparent' }} onPress={() => setIsMenuVisible(false)}>
+                    <View style={{ position: 'absolute', top: 70, right: 30, backgroundColor: 'white', borderRadius: 8, padding: 10, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)' }}>
+                        <Pressable onPress={() => handleRemoveCollection(id)}>
+                            <Text style={{ color: 'red' }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color='red' /> Delete Collection</Text>
+                        </Pressable>
+                    </View>
+                </Pressable>
+            </Modal>
             {loading && <Text>Loading...</Text>}
             <FlatList
                 data={shows}

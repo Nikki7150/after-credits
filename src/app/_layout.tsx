@@ -8,6 +8,7 @@ export default function RootLayout() {
       <Stack.Screen name="show/[id]" />
       <Stack.Screen name="collections/[language]" />
       <Stack.Screen name="collection/[id]" />
+      <Stack.Screen name="collections/all" />
     </Stack>
   );
 }

@@ -58,16 +58,16 @@ export default function CollectionsScreen() {
         }, [fetchShows, fetchCollections])
     );
 
-    const grouped = shows.reduce((acc, show) => {
-        const lang = show.language ?? 'unknown';
-        if (!acc[lang]) {
-            acc[lang] = [];
-        }
-        acc[lang].push(show);
-        return acc;
-    }, {} as Record<string, any[]>);
+    // const grouped = shows.reduce((acc, show) => {
+    //     const lang = show.language ?? 'unknown';
+    //     if (!acc[lang]) {
+    //         acc[lang] = [];
+    //     }
+    //     acc[lang].push(show);
+    //     return acc;
+    // }, {} as Record<string, any[]>);
 
-    const languageGroups = Object.entries(grouped) as [string, any[]][];
+    // const languageGroups = Object.entries(grouped) as [string, any[]][];
 
     const handleCreateCollection = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -90,7 +90,16 @@ export default function CollectionsScreen() {
 
     return (
         <View style={{ flex: 1, paddingTop: 60, paddingHorizontal: 16 }}>
-            <FlatList<[string, typeof shows]>
+            <Link href={`/collections/all`} asChild>
+                <Pressable>
+                    <View style={{ paddingVertical: 12 }}>
+                        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+                            All Shows
+                        </Text>
+                    </View>
+                </Pressable>
+            </Link>
+            {/* <FlatList<[string, typeof shows]>
                 data={languageGroups}
                 keyExtractor={([lang]) => lang}
                 renderItem={({ item: [lang, showsInLang] }) => (
@@ -104,7 +113,7 @@ export default function CollectionsScreen() {
                         </Pressable>
                     </Link>
                 )}
-            />
+            /> */}
             <FlatList
                 data={collectionsList}
                 keyExtractor={(item) => item.id}

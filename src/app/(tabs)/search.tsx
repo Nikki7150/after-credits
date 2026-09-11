@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { IMAGE_BASE_URL, searchShows } from '@/lib/tmdb';
 import { supabase } from '@/lib/supabase';
 import { ShowListItem } from '@/components/show-list-item';
+import { ThemedText } from '@/components/themed-text';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Spacing, BottomTabInset, MaxContentWidth, Palette } from '@/constants/theme';
 
 export default function SearchScreen() {
     const [results, setResults] = useState<any[]>([]);
@@ -47,23 +50,28 @@ export default function SearchScreen() {
         }
     };
 
+    const handleClear = () => {
+        setQuery('');
+        setResults([]);
+    };
+
     return (
-        <View style={styles.container}>
-            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+        <SafeAreaView style={styles.safeArea}>
+            <ThemedText type="title" style={{ color: Palette.moonRock, }}>Search</ThemedText>
+            <View style={styles.search}>
+                <Text style={styles.searchIcon}>⌕</Text>
                 <TextInput
                     placeholder="Search for shows..."
-                    style={styles.textInput}
+                    style={styles.searchInput}
                     value={query}
                     onChangeText={(text) => setQuery(text)}
-                    onSubmitEditing={() => {
-                        handleSearch();
-                    }}
+                    onSubmitEditing={() => {handleSearch()}}
                 />
-                <Pressable onPress={() => {
-                    handleSearch();
-                }} style={{ padding: 10, backgroundColor: 'lightblue', borderRadius: 5, marginTop: 20 }}>
-                    <Text>S</Text>
-                </Pressable>
+                {query.length > 0 && (
+                    <Pressable onPress={handleClear}>
+                        <Text style={styles.searchClear}>ㄨ</Text>
+                    </Pressable>
+                )}
             </View>
             {loading && <Text>Loading...</Text>}
             <FlatList
@@ -79,6 +87,7 @@ export default function SearchScreen() {
                                         : (item.first_air_date === '' ? 'TBA' : item.first_air_date.split('-')[0])
                                 }
                                 posterPath={item.poster_path}
+                                page='search'
                             />
                         </View>
                         <Pressable onPress={() => handleSave(item)} style={{ padding: 10, backgroundColor: 'lightgray', borderRadius: 5, marginLeft: 'auto' }}>
@@ -88,21 +97,44 @@ export default function SearchScreen() {
                 )}
                 keyExtractor={(item) => item.id.toString()}
             />
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    safeArea: {
         flex: 1,
-        paddingTop: 60,
-        paddingHorizontal: 16,
+        paddingHorizontal: Spacing.four,
+        paddingTop: Spacing.four,
+        gap: Spacing.three,
+        paddingBottom: BottomTabInset + Spacing.three,
+        maxWidth: MaxContentWidth,
+        alignSelf: 'center',
+        width: '100%',
+        backgroundColor: Palette.darkSienna,
     },
-    textInput: {
-        height: 40,
-        borderColor: 'gray',
+    search: { 
+        flexDirection: 'row', 
+        gap: 10, 
+        alignItems: 'center',
+        backgroundColor: Palette.softDove,
         borderWidth: 1,
-        paddingHorizontal: 10,
-        flex: 1,
+        borderColor: Palette.moonRock,
+        borderRadius: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
     },
+    searchIcon: {
+        fontSize: 40,
+        color: Palette.spicedHotChocolate,
+    },
+    searchInput: {
+        width: '80%',
+        fontSize: 17,
+        color: Palette.spicedHotChocolate,
+    },
+    searchClear: {
+        fontSize: 25,
+        color: Palette.spicedHotChocolate,
+    }
 });

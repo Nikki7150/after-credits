@@ -134,6 +134,7 @@ export default function ShowCollectionDetails() {
                                     title={item.title}
                                     year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
                                     posterPath={item.poster_path}
+                                    page="watchlist"
                                 />
                             </Pressable>
                         </Link>

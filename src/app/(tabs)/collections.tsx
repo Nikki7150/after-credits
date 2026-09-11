@@ -4,6 +4,9 @@ import { useCallback, useState, useMemo } from 'react';
 
 import { supabase } from '@/lib/supabase';
 import { LANGUAGE_NAMES } from '@/lib/languages';
+import { ThemedText } from '@/components/themed-text';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Spacing, BottomTabInset, MaxContentWidth, Palette } from '@/constants/theme';
 
 export default function CollectionsScreen() {
     const [shows, setShows] = useState<any[]>([]);
@@ -78,8 +81,8 @@ export default function CollectionsScreen() {
     };
 
     return (
-        <View style={{ flex: 1, paddingTop: 60, paddingHorizontal: 16, }}>
-            <Text style={styles.heading}>My Collections</Text>
+        <SafeAreaView style={styles.safeArea}>
+            <ThemedText type="title" style={{ color: Palette.softDove, }}>Collection</ThemedText>
             <Link href={`/collections/all`} asChild>
                 <Pressable>
                     <View style={{ paddingVertical: 12 }}>
@@ -127,11 +130,22 @@ export default function CollectionsScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        paddingHorizontal: Spacing.four,
+        paddingTop: Spacing.four,
+        gap: Spacing.three,
+        paddingBottom: BottomTabInset + Spacing.three,
+        maxWidth: MaxContentWidth,
+        alignSelf: 'center',
+        width: '100%',
+        backgroundColor: Palette.spicedHotChocolate,
+    },
     container: {
         flex: 1,
         padding: 16,
@@ -141,20 +155,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    heading: {
-        alignSelf: 'center',
-        marginTop: 10,
-        fontWeight: 'bold',
-        fontSize: 30,
-    },
     addButton: {
-        backgroundColor: 'pink',
+        backgroundColor: Palette.moonRock,
         width: 50,
         height: 50,
         borderRadius: 25,
         alignItems: 'center',
-        bottom: 100,
-        left: 320,
+        bottom: -50,
+        right: -300,
         boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)',
     },
     meta: {

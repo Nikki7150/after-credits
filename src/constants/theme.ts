@@ -7,6 +7,14 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
+export const Palette = {
+  softDove: '#C0BAB3',
+  spicedHotChocolate: '#52423D',
+  moonRock: '#887D77',
+  darkSienna: '#391214',
+  blackRaspberry: '#160F0C',
+} as const;
+
 export const Colors = {
   light: {
     text: '#000000',

@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 import { ShowListItem } from '@/components/show-list-item';
+import { Palette } from '@/constants/theme';
 
 export default function WatchlistScreen() {
   const [results, setResults] = useState<any[]>([]);
@@ -43,10 +44,11 @@ export default function WatchlistScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedText type="title">Watchlist</ThemedText>
-        <ThemedText type="small">Want to Watch</ThemedText>
-        {loading && <ThemedText type="small">Refreshing...</ThemedText>}
+        <ThemedText type="title" style={{ color: Palette.darkSienna, }}>Watchlist</ThemedText>
+        <ThemedText type="small" style={{ color: Palette.spicedHotChocolate, }}>Want to Watch</ThemedText>
+        {loading && <ThemedText type="small" style={{ color: Palette.blackRaspberry, }}>Refreshing...</ThemedText>}
         <FlatList
+          style={{ flex: 1, alignSelf: 'stretch' }}
           data={results}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
@@ -56,11 +58,11 @@ export default function WatchlistScreen() {
                   title={item.title}
                   year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
                   posterPath={item.poster_path}
+                  page='watchlist'
                 />
               </Pressable>
             </Link>
           )}
-          style={{ alignSelf: 'stretch' }}
         />
       </SafeAreaView>
     </ThemedView>
@@ -70,13 +72,14 @@ export default function WatchlistScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Palette.softDove,
   },
   safeArea: {
     flex: 1,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.four,
     gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
+    paddingBottom: Spacing.three,
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
     width: '100%',

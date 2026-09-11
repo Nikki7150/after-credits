@@ -7,6 +7,7 @@ import { LANGUAGE_NAMES } from "@/lib/languages";
 import { supabase } from "@/lib/supabase";
 import { getShowDetails, IMAGE_BASE_URL } from "@/lib/tmdb";
 import Icon from 'react-native-ico-material-design';
+import { Palette } from "@/constants/theme";
 
 export default function ShowDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -221,21 +222,21 @@ export default function ShowDetailScreen() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: Palette.moonRock, }}>
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
                     <Pressable onPress={() => router.back()}>
-                        <Text>Back</Text>
+                        <Text style={{ color: Palette.blackRaspberry, fontWeight: 500, fontSize: 20, }}>く</Text>
                     </Pressable>
                     <Pressable onPress={() => setIsMenuVisible(true)}>
-                        <Text style={{ fontSize: 25, fontWeight: 200, }}>⋮</Text>
+                        <Text style={{ color: Palette.blackRaspberry, fontSize: 25, }}>⋮</Text>
                     </Pressable>
                 </View>
                 <Modal visible={isMenuVisible} transparent animationType="fade">
                     <Pressable style={{ flex: 1, backgroundColor: 'transparent' }} onPress={() => setIsMenuVisible(false)}>
-                        <View style={{ position: 'absolute', top: 70, right: 30, backgroundColor: 'white', borderRadius: 8, padding: 10, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)' }}>
+                        <View style={{ position: 'absolute', top: 70, right: 30, backgroundColor: Palette.softDove, borderRadius: 8, padding: 10, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)' }}>
                             <Pressable onPress={handleRemoveFromWatchlist}>
-                                <Text style={{ color: 'red' }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color='red' /> Remove from Watchlist</Text>
+                                <Text style={{ color: Palette.darkSienna, fontWeight: 500 }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color={Palette.darkSienna} /> Remove from Watchlist</Text>
                             </Pressable>
                         </View>
                     </Pressable>
@@ -276,7 +277,7 @@ export default function ShowDetailScreen() {
                     </View>
                 )}
                 <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')} style={show.status === 'want_to_watch' ? styles.wantButton : styles.watchButton}>
-                    <Text style={styles.meta1}>{show.status === 'watched' ? '☑ Watched' : '☐ Want to Watch'}</Text>
+                    <Text style={show.status === 'watched' ? styles.meta2 : styles.meta1}>{show.status === 'watched' ? '☑ Watched' : '☐ Want to Watch'}</Text>
                 </Pressable>
                 {show.genres && show.genres.length > 0 && (
                     <Text style={styles.meta}>{show.genres.join(', ')}</Text>
@@ -303,23 +304,23 @@ export default function ShowDetailScreen() {
                     />
                 )}
                 {show.language && (
-                    <Text style={styles.meta1}>{LANGUAGE_NAMES[show.language] ?? show.language}</Text>
+                    <Text style={styles.meta1}>Language: {LANGUAGE_NAMES[show.language] ?? show.language}</Text>
                 )}
                 <Pressable onPress={() => setIsDrowdownVisible(!isDropdownVisible)} style={isDropdownVisible ? styles.collectionButton1 : styles.collectionButton}>
-                    <Text>
+                    <Text style={{ color: Palette.softDove, fontWeight: 700, }}>
                         {showCollectionNames.length > 0 ? showCollectionNames.join(', ') : 'Add to Collection'}
                     </Text>
-                    <Text style={{ fontSize: 10, marginTop: 2 }}>▼</Text>
+                    <Text style={{ fontSize: 10, marginTop: 2, color: Palette.softDove,  }}>▼</Text>
                 </Pressable>
                 {isDropdownVisible && (
                     <View style={styles.dropdown}>
                         {collectionsList.map((item) => (
                             <Pressable key={item.id} onPress={() => handleAddToCollection(item.id)} style={styles.dropdownButton}>
-                                <Text>{item.name}</Text>
+                                <Text style={{ color: Palette.softDove, fontWeight: 700, margin: 5, }}>{item.name}</Text>
                             </Pressable>
                         ))}
                         <Pressable onPress={() => setIsModalVisible(true)}>
-                            <Text>+ New Collection</Text>
+                            <Text style={{ color: Palette.softDove, fontWeight: 700, }}>+ New Collection</Text>
                         </Pressable>
                     </View>
                 )}
@@ -360,8 +361,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     poster: {
-        width: 200,
-        height: 300,
+        width: 250,
+        height: 350,
         alignSelf: 'center',
         marginTop: 20,
         borderRadius: 8,
@@ -371,11 +372,14 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginTop: 16,
+        marginBottom: 5,
+        color: Palette.spicedHotChocolate,
     },
     year: {
         fontSize: 16,
-        color: 'gray',
+        color: Palette.softDove,
         textAlign: 'center',
+        fontWeight: 700, 
     },
     input: {
         justifyContent: "center",
@@ -383,12 +387,12 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         height: undefined,
         minHeight: 50,
-        borderColor: "#d1d1d1",
+        borderColor: Palette.spicedHotChocolate,
         padding: 5,
     },
     meta: {
         fontSize: 14,
-        color: 'gray',
+        color: Palette.blackRaspberry,
         textAlign: 'center',
         paddingHorizontal: 16,
     },
@@ -396,7 +400,17 @@ const styles = StyleSheet.create({
         fontSize: 20,
         textAlign: 'center',
         paddingHorizontal: 16,
-        fontFamily: 'Courier'
+        fontFamily: 'Courier',
+        color: Palette.spicedHotChocolate,
+        fontWeight: 600, 
+    },
+    meta2: {
+        fontSize: 20,
+        textAlign: 'center',
+        paddingHorizontal: 16,
+        fontFamily: 'Courier',
+        color: Palette.softDove,
+        fontWeight: 600, 
     },
     castContainer: {
         minHeight: 150,
@@ -421,16 +435,16 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     wantButton: {
-        backgroundColor: 'white',
+        backgroundColor: Palette.softDove,
         borderWidth: 2,
-        borderColor: 'gray',
+        borderColor: Palette.darkSienna,
         padding: 15,
         margin: 10,
         borderRadius: 10,
         textAlign: 'center',
     },
     watchButton: {
-        backgroundColor: 'pink',
+        backgroundColor: Palette.blackRaspberry,
         padding: 15,
         margin: 10,
         borderRadius: 10,
@@ -438,7 +452,8 @@ const styles = StyleSheet.create({
     },
     collectionButton: {
         padding: 10,
-        backgroundColor: 'white',
+        backgroundColor: Palette.darkSienna,
+        borderColor: Palette.softDove, 
         borderWidth: 1,
         borderRadius: 10,
         margin: 10,
@@ -448,7 +463,7 @@ const styles = StyleSheet.create({
     },
     collectionButton1: {
         padding: 10,
-        backgroundColor: 'white',
+        backgroundColor: Palette.darkSienna,
         borderWidth: 1,
         borderRadius: 10,
         borderBottomLeftRadius: 0,
@@ -462,7 +477,7 @@ const styles = StyleSheet.create({
     },
     dropdown: {
         padding: 10,
-        backgroundColor: 'white',
+        backgroundColor: Palette.darkSienna,
         borderWidth: 1,
         margin: 10,
         marginTop: 0,

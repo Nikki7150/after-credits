@@ -1,3 +1,4 @@
+import { Palette } from "@/constants/theme";
 import { IMAGE_BASE_URL } from "@/lib/tmdb";
 import { Image, StyleSheet, Text, View } from "react-native";
 
@@ -5,9 +6,10 @@ type ShowListItemProps = {
     title: string;
     year: string;
     posterPath: string | null;
+    page: string;
 };
 
-export function ShowListItem({ title, year, posterPath }: ShowListItemProps) {
+export function ShowListItem({ title, year, posterPath, page }: ShowListItemProps) {
     return (
         <View style={styles.container}>
         {posterPath ? (
@@ -19,8 +21,8 @@ export function ShowListItem({ title, year, posterPath }: ShowListItemProps) {
             <View style={styles.poster} />
         )}
         <View style={styles.info}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.year}>{year}</Text>
+            <Text style={page == 'watchlist' ? styles.title : styles.title2}>{title}</Text>
+            <Text style={page == 'watchlist' ? styles.year : styles.year2}>{year}</Text>
         </View>
         </View>
     );
@@ -43,11 +45,22 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 16,
-        fontWeight: "600",
+        fontWeight: 600,
+        color: Palette.blackRaspberry,
+    },
+    title2: {
+        fontSize: 16,
+        fontWeight: 600,
+        color: Palette.softDove,
     },
     year: {
         marginTop: 4,
         fontSize: 14,
-        color: "#6b7280",
+        color: Palette.spicedHotChocolate,
+    },
+    year2: {
+        marginTop: 4,
+        fontSize: 14,
+        color: Palette.moonRock,
     },
 });

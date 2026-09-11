@@ -1,5 +1,6 @@
 import { View, Text, FlatList, Pressable, StyleSheet, Modal, TextInput } from 'react-native';
-import { Link, router, useFocusEffect } from 'expo-router'; // runs every time screen in focus
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Link, router, useFocusEffect, useLocalSearchParams } from 'expo-router'; // runs every time screen in focus
 import { useCallback, useState, useMemo } from 'react';
 
 import { supabase } from '@/lib/supabase';
@@ -11,8 +12,9 @@ export default function CollectionsScreen() {
     const [shows, setShows] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [collectionsList, setCollectionsList] = useState<any[]>([]);
-    const [collectionName, setCollectionName] = useState('');
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState<string |null>(null);
+
+    const filteredShows = selectedLanguage ? shows.filter((show) => (show.language ?? 'unknown') === selectedLanguage) : shows;
 
     const fetchShows = useCallback(async () => {
         console.log('fetchshows: starting');
@@ -52,7 +54,7 @@ export default function CollectionsScreen() {
     const languageGroups = Object.entries(grouped) as [string, any[]][];
 
     return (
-        <View style={{ flex: 1, paddingTop: 60, paddingHorizontal: 16 }}>
+        <SafeAreaView style={styles.container}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
                 <Pressable onPress={() => router.back()}>
                     <Text>Back</Text>
@@ -61,25 +63,34 @@ export default function CollectionsScreen() {
                     <Text style={{ fontSize: 25, fontWeight: 200, }}>⋮</Text>
                 </Pressable> */}
             </View>
-            <FlatList<[string, typeof shows]>
-                data={languageGroups}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={([lang]) => lang}
-                renderItem={({ item: [lang, showsInLang] }) => (
-                    <View style={styles.filters}>
-                        <Link href={`/collections/${lang}`} asChild>
-                            <Pressable>
+            <View style={{ flexDirection: 'row', marginTop: 10, }}>
+                <Pressable onPress={() => setSelectedLanguage(null)}>
+                    <View style={[styles.filters, selectedLanguage === null && styles.filtersActive]}>
+                        <Text style={{ fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
+                            All ({shows.length})
+                        </Text>
+                    </View>
+                </Pressable>
+                <FlatList<[string, typeof shows]>
+                    style={{ flexGrow: 0 }}
+                    data={languageGroups}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={([lang]) => lang}
+                    renderItem={({ item: [lang, showsInLang] }) => (
+                        <Pressable onPress={() => setSelectedLanguage(lang)}>
+                            <View style={[styles.filters, selectedLanguage === lang && styles.filtersActive]}>
                                 <Text style={{ fontSize: 15, fontWeight: 'semibold', textAlign: 'center', }}>
                                     {LANGUAGE_NAMES[lang] ?? lang} ({showsInLang.length})
                                 </Text>
-                            </Pressable>
-                        </Link>
-                    </View>
-                )}
-            />
+                            </View>
+                        </Pressable>
+                    )}
+                />
+            </View>
             <FlatList
-                data={shows}
+            style={{ flex: 1 }}
+                data={filteredShows}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <View style={{ flexDirection: 'row', gap: 10, padding: 10, alignItems: 'center', }}>
@@ -92,17 +103,18 @@ export default function CollectionsScreen() {
                                 />
                             </Pressable>
                         </Link>
-                        <Pressable>
-                            <Text style={{ color: 'red' }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color='red' /></Text>
-                        </Pressable>
                     </View>
                 )}
             />
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+    },
     filters: {
         backgroundColor: 'white',
         borderWidth: 1,
@@ -111,5 +123,15 @@ const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 10,
         alignItems: 'center',
-    }
+        height: 30,
+    },
+    filtersActive: {
+        backgroundColor: 'rgba(185, 144, 144, 1)',
+        borderWidth: 1,
+        borderColor: 'grey',
+        margin: 5,
+        padding: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
 })

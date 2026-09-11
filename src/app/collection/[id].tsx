@@ -15,6 +15,7 @@ export default function ShowCollectionDetails() {
     const [shows, setShows] = useState<any>(null);
     const [text, setText] = useState('');
     const [isMenuVisible, setIsMenuVisible] = useState(false);
+    const [collectionName, setCollectionName] = useState('');
 
     const fetchShows = useCallback(async () => {
         setLoading(true);
@@ -34,6 +35,21 @@ export default function ShowCollectionDetails() {
         } finally {
             setLoading(false);
         }
+    }, [id]);
+
+    useEffect(() => {
+        const fetchCollectionName = async () => {
+            const { data, error } = await supabase
+                .from('collections')
+                .select('name')
+                .eq('id', id)
+                .single();
+            if (error) console.error('Error fetching collection name: ', error);
+            else if (data) {
+                setCollectionName(data.name);
+            }
+        };
+        fetchCollectionName();
     }, [id]);
 
     useEffect(() => {
@@ -92,6 +108,7 @@ export default function ShowCollectionDetails() {
                 <Pressable onPress={() => router.back()}>
                     <Text>Back</Text>
                 </Pressable>
+                <Text style={{ fontSize: 20, fontWeight: '500', }}>{collectionName}</Text>
                 <Pressable onPress={() => setIsMenuVisible(true)}>
                     <Text style={{ fontSize: 25, fontWeight: 200, }}>⋮</Text>
                 </Pressable>

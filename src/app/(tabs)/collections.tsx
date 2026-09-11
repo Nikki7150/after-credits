@@ -58,17 +58,6 @@ export default function CollectionsScreen() {
         }, [fetchShows, fetchCollections])
     );
 
-    // const grouped = shows.reduce((acc, show) => {
-    //     const lang = show.language ?? 'unknown';
-    //     if (!acc[lang]) {
-    //         acc[lang] = [];
-    //     }
-    //     acc[lang].push(show);
-    //     return acc;
-    // }, {} as Record<string, any[]>);
-
-    // const languageGroups = Object.entries(grouped) as [string, any[]][];
-
     const handleCreateCollection = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -89,7 +78,8 @@ export default function CollectionsScreen() {
     };
 
     return (
-        <View style={{ flex: 1, paddingTop: 60, paddingHorizontal: 16 }}>
+        <View style={{ flex: 1, paddingTop: 60, paddingHorizontal: 16, }}>
+            <Text style={styles.heading}>My Collections</Text>
             <Link href={`/collections/all`} asChild>
                 <Pressable>
                     <View style={{ paddingVertical: 12 }}>
@@ -99,21 +89,6 @@ export default function CollectionsScreen() {
                     </View>
                 </Pressable>
             </Link>
-            {/* <FlatList<[string, typeof shows]>
-                data={languageGroups}
-                keyExtractor={([lang]) => lang}
-                renderItem={({ item: [lang, showsInLang] }) => (
-                    <Link href={`/collections/${lang}`} asChild>
-                        <Pressable>
-                            <View style={{ paddingVertical: 12 }}>
-                                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
-                                    {LANGUAGE_NAMES[lang] ?? lang} ({showsInLang.length})
-                                </Text>
-                            </View>
-                        </Pressable>
-                    </Link>
-                )}
-            /> */}
             <FlatList
                 data={collectionsList}
                 keyExtractor={(item) => item.id}
@@ -166,16 +141,26 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    heading: {
+        alignSelf: 'center',
+        marginTop: 10,
+        fontWeight: 'bold',
+        fontSize: 30,
+    },
     addButton: {
         backgroundColor: 'pink',
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        textAlign: 'center',
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        alignItems: 'center',
+        bottom: 100,
+        left: 320,
+        boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)',
     },
     meta: {
-        fontSize: 20,
+        fontSize: 30,
         textAlign: 'center',
+        marginTop: 5,
     },
     input: {
         justifyContent: "center",

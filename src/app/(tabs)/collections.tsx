@@ -1,12 +1,12 @@
-import { View, Text, FlatList, Pressable, StyleSheet, Modal, TextInput } from 'react-native';
+import { View, Text, FlatList, Pressable, StyleSheet, Modal, TextInput, Image } from 'react-native';
 import { Link, useFocusEffect } from 'expo-router'; // runs every time screen in focus
 import { useCallback, useState, useMemo } from 'react';
 
 import { supabase } from '@/lib/supabase';
-import { LANGUAGE_NAMES } from '@/lib/languages';
 import { ThemedText } from '@/components/themed-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Spacing, BottomTabInset, MaxContentWidth, Palette } from '@/constants/theme';
+import { IMAGE_BASE_URL } from '@/lib/tmdb';
 
 export default function CollectionsScreen() {
     const [shows, setShows] = useState<any[]>([]);
@@ -14,9 +14,10 @@ export default function CollectionsScreen() {
     const [collectionsList, setCollectionsList] = useState<any[]>([]);
     const [collectionName, setCollectionName] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [posters, setPosters] = useState<any[]>([]);
+    const [allPosters, setAllPosters] = useState<any[]>([]);
 
     const fetchShows = useCallback(async () => {
-        console.log('fetchshows: starting');
         setLoading(true);
         try {
             const { data, error } = await supabase
@@ -54,11 +55,33 @@ export default function CollectionsScreen() {
         }
     }, []);
 
+    const fetchPosterPerCollection = useCallback (async () => {
+        const { data, error } = await supabase
+            .from('collection_shows')
+            .select('collection_id, shows(poster_path)');
+        if (error) console.error('Error fetching show posters: ', error);
+        else {
+            setPosters(data || []);
+        }
+    }, []);
+
+    const fetchPosterAllShows = useCallback (async () => {
+        const { data, error } = await supabase
+            .from('shows')
+            .select('id, poster_path');
+        if (error) console.error('Error fetching show posters: ', error);
+        else {
+            setAllPosters(data || []);
+        }
+    },[]);
+
     useFocusEffect(
         useCallback(() => {
-        fetchShows();
-        fetchCollections();
-        }, [fetchShows, fetchCollections])
+            fetchShows();
+            fetchCollections();
+            fetchPosterPerCollection();
+            fetchPosterAllShows();
+        }, [fetchShows, fetchCollections, fetchPosterPerCollection, fetchPosterAllShows])
     );
 
     const handleCreateCollection = async () => {
@@ -74,38 +97,76 @@ export default function CollectionsScreen() {
         if (error) {
             console.error('Error saving show:', error);
         } else {
-            console.log('Show saved successfully');
             setCollectionName('');
             fetchCollections();
         }
     };
+
+    const paddedCollections =
+    collectionsList.length % 2 !== 0
+        ? [...collectionsList, { id: 'placeholder', isPlaceholder: true }]
+        : collectionsList;
+
+    const groupedByCollection = posters.reduce((acc, row) => {
+        const collectionId = row.collection_id;
+        const posterPath = row.shows?.poster_path;
+        if (!acc[collectionId]) {
+            acc[collectionId] = [];
+        }
+        if (posterPath) {
+            acc[collectionId].push(posterPath);
+        }
+        return acc;
+    }, {} as Record<string, string[]>);
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <ThemedText type="title" style={{ color: Palette.softDove, }}>Collection</ThemedText>
             <Link href={`/collections/all`} asChild>
                 <Pressable>
-                    <View style={{ paddingVertical: 12 }}>
-                        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
-                            All Shows
-                        </Text>
+                    <View style={[styles.shelfSquare, { flexDirection: 'row', overflow: 'hidden', aspectRatio: 2.3, alignItems: 'center', padding: 5 }]}>
+                        {allPosters.slice(0, 25).map((row: any, index: any) => (
+                            <Image
+                                key={index}
+                                source={{ uri: `${IMAGE_BASE_URL}${row.poster_path}` }}
+                                style={{ flex: 1, height: '90%', borderWidth: 2, borderColor: Palette.moonRock, borderRadius: 2 }}
+                                resizeMode="cover"
+                            />
+                        ))}
                     </View>
+                    <Text style={styles.shelfLabel}>
+                        All Shows
+                    </Text>
                 </Pressable>
             </Link>
             <FlatList
-                data={collectionsList}
+                data={paddedCollections}
+                numColumns={2}
+                columnWrapperStyle={{ gap: 28, paddingHorizontal: 12 }}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <Link href={`/collection/${item.id}`} asChild>
-                        <Pressable>
-                            <View style={{ paddingVertical: 12 }}>
-                                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
-                                    {item.name}
-                                </Text>
-                            </View>
-                        </Pressable>
-                    </Link>
-                )}
+                renderItem={({ item }) => {
+                    if (item.isPlaceholder) {
+                        return <View style={{ flex: 1 }} />;
+                    }
+                    const posters = groupedByCollection[item.id] ?? [];
+                    return (
+                        <Link href={`/collection/${item.id}`} asChild style={{ flex: 1 }}>
+                            <Pressable style={{ marginBottom: 20 }}>
+                                <View style={[styles.shelfSquare, { flexDirection: 'row', overflow: 'hidden', alignItems: 'center', padding: 5 }]}>
+                                    {posters.slice(0, 15).map((posterPath: any, index: any) => (
+                                        <Image
+                                            key={index}
+                                            source={{ uri: `${IMAGE_BASE_URL}${posterPath}` }}
+                                            style={{ flex: 1, height: '90%', borderWidth: 2, borderColor: Palette.moonRock, borderRadius: 2 }}
+                                            resizeMode="cover"
+                                        />
+                                    ))}
+                                </View>
+                                <Text style={styles.shelfLabel}>{item.name}</Text>
+                            </Pressable>
+                        </Link>
+                    );
+                }}
             />
             <Pressable style={styles.addButton} onPress={() => setIsModalVisible(true)}>
                 <Text style={styles.meta}>+</Text>
@@ -178,5 +239,15 @@ const styles = StyleSheet.create({
         minHeight: 50,
         borderColor: "#d1d1d1",
         padding: 5,
+    },
+    shelfSquare: {
+        aspectRatio: 1,
+        backgroundColor: Palette.moonRock,
+        borderRadius: 12,
+    },
+    shelfLabel: {
+        textAlign: 'center',
+        marginTop: 8,
+        fontWeight: '600',
     },
 })

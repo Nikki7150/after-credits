@@ -16,7 +16,6 @@ export default function WatchlistScreen() {
   const [loading, setLoading] = useState(false);
 
   const fetchShows = useCallback(async () => {
-    console.log('fetchshows: starting');
     setLoading(true);
       try {
         const { data, error } = await supabase

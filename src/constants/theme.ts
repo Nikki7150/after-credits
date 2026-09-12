@@ -11,7 +11,7 @@ export const Palette = {
   softDove: '#C0BAB3',
   spicedHotChocolate: '#52423D',
   moonRock: '#887D77',
-  darkSienna: '#391214',
+  darkSienna: '#441214',
   blackRaspberry: '#160F0C',
 } as const;
 

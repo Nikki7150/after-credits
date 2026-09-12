@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { LANGUAGE_NAMES } from '@/lib/languages';
 import { ShowListItem } from '@/components/show-list-item';
 import Icon from 'react-native-ico-material-design';
+import { Palette } from '@/constants/theme';
 
 export default function CollectionsScreen() {
     const [shows, setShows] = useState<any[]>([]);
@@ -17,7 +18,6 @@ export default function CollectionsScreen() {
     const filteredShows = selectedLanguage ? shows.filter((show) => (show.language ?? 'unknown') === selectedLanguage) : shows;
 
     const fetchShows = useCallback(async () => {
-        console.log('fetchshows: starting');
         setLoading(true);
         try {
             const { data, error } = await supabase
@@ -59,9 +59,6 @@ export default function CollectionsScreen() {
                 <Pressable onPress={() => router.back()}>
                     <Text>Back</Text>
                 </Pressable>
-                {/* <Pressable onPress={() => setIsMenuVisible(true)}>
-                    <Text style={{ fontSize: 25, fontWeight: 200, }}>⋮</Text>
-                </Pressable> */}
             </View>
             <View style={{ flexDirection: 'row', marginTop: 10, }}>
                 <Pressable onPress={() => setSelectedLanguage(null)}>
@@ -100,7 +97,7 @@ export default function CollectionsScreen() {
                                     title={item.title}
                                     year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
                                     posterPath={item.poster_path}
-                                    page='watchlist'
+                                    page='search'
                                 />
                             </Pressable>
                         </Link>
@@ -115,11 +112,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
+        backgroundColor: Palette.blackRaspberry,
     },
     filters: {
-        backgroundColor: 'white',
+        backgroundColor: Palette.softDove,
         borderWidth: 1,
-        borderColor: 'grey',
+        borderColor: Palette.moonRock,
         margin: 5,
         padding: 5,
         borderRadius: 10,
@@ -127,9 +125,9 @@ const styles = StyleSheet.create({
         height: 30,
     },
     filtersActive: {
-        backgroundColor: 'rgba(185, 144, 144, 1)',
+        backgroundColor: Palette.spicedHotChocolate,
         borderWidth: 1,
-        borderColor: 'grey',
+        borderColor: Palette.moonRock,
         margin: 5,
         padding: 5,
         borderRadius: 10,

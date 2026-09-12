@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { getShowDetails, IMAGE_BASE_URL } from "@/lib/tmdb";
 import { ShowListItem } from "@/components/show-list-item";
 import Icon from 'react-native-ico-material-design';
+import { Palette } from "@/constants/theme";
 
 export default function ShowCollectionDetails() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -106,23 +107,23 @@ export default function ShowCollectionDetails() {
         <SafeAreaView style={styles.container}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
                 <Pressable onPress={() => router.back()}>
-                    <Text>Back</Text>
+                    <Text style={{ color: Palette.spicedHotChocolate, fontWeight: 500, fontSize: 20, }}>く</Text>
                 </Pressable>
-                <Text style={{ fontSize: 20, fontWeight: '500', }}>{collectionName}</Text>
+                <Text style={{ color: Palette.moonRock, fontSize: 20, fontWeight: 500 }}>{collectionName}</Text>
                 <Pressable onPress={() => setIsMenuVisible(true)}>
-                    <Text style={{ fontSize: 25, fontWeight: 200, }}>⋮</Text>
+                    <Text style={{ color: Palette.spicedHotChocolate, fontSize: 25, }}>⋮</Text>
                 </Pressable>
             </View>
             <Modal visible={isMenuVisible} transparent animationType="fade">
                 <Pressable style={{ flex: 1, backgroundColor: 'transparent' }} onPress={() => setIsMenuVisible(false)}>
-                    <View style={{ position: 'absolute', top: 70, right: 30, backgroundColor: 'white', borderRadius: 8, padding: 10, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)' }}>
+                    <View style={{ position: 'absolute', top: 70, right: 30, backgroundColor: Palette.moonRock, borderRadius: 8, padding: 10, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)' }}>
                         <Pressable onPress={() => handleRemoveCollection(id)}>
-                            <Text style={{ color: 'red' }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color='red' /> Delete Collection</Text>
+                            <Text style={{ color: Palette.darkSienna, fontWeight: 500 }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color={Palette.darkSienna} /> Delete Collection</Text>
                         </Pressable>
                     </View>
                 </Pressable>
             </Modal>
-            {loading && <Text>Loading...</Text>}
+            {loading && <Text style={{ color: Palette.softDove }}>Loading...</Text>}
             <FlatList
                 data={shows}
                 keyExtractor={(item) => item.id.toString()}
@@ -134,12 +135,12 @@ export default function ShowCollectionDetails() {
                                     title={item.title}
                                     year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
                                     posterPath={item.poster_path}
-                                    page="watchlist"
+                                    page="search"
                                 />
                             </Pressable>
                         </Link>
                         <Pressable onPress={() => handleRemoveFromCollection(item.id)}>
-                            <Text style={{ color: 'red' }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color='red' /></Text>
+                            <Text style={{ backgroundColor: Palette.darkSienna, padding: 10, paddingTop: 15, borderRadius: 5, }}><Icon name="rubbish-bin-delete-button" height={13} width={13} color={Palette.moonRock} /></Text>
                         </Pressable>
                     </View>
                 )}
@@ -152,6 +153,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
+        backgroundColor: Palette.blackRaspberry,
     },
     center: {
         flex: 1,

@@ -202,7 +202,6 @@ export default function ShowDetailScreen() {
         if (error) {
             console.error('Error saving show:', error);
         } else {
-            console.log('Show saved successfully');
             setCollectionName('');
             fetchCollections();
         }

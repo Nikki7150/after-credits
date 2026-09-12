@@ -249,5 +249,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 8,
         fontWeight: '600',
+        fontFamily: 'RockSalt_400Regular',
     },
 })

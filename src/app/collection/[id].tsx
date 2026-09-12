@@ -109,7 +109,7 @@ export default function ShowCollectionDetails() {
                 <Pressable onPress={() => router.back()}>
                     <Text style={{ color: Palette.spicedHotChocolate, fontWeight: 500, fontSize: 20, }}>く</Text>
                 </Pressable>
-                <Text style={{ color: Palette.moonRock, fontSize: 20, fontWeight: 500 }}>{collectionName}</Text>
+                <Text style={{ color: Palette.moonRock, fontSize: 20, fontWeight: 500, fontFamily: 'RockSalt_400Regular', lineHeight: 35, }}>{collectionName}</Text>
                 <Pressable onPress={() => setIsMenuVisible(true)}>
                     <Text style={{ color: Palette.spicedHotChocolate, fontSize: 25, }}>⋮</Text>
                 </Pressable>
@@ -118,12 +118,12 @@ export default function ShowCollectionDetails() {
                 <Pressable style={{ flex: 1, backgroundColor: 'transparent' }} onPress={() => setIsMenuVisible(false)}>
                     <View style={{ position: 'absolute', top: 70, right: 30, backgroundColor: Palette.moonRock, borderRadius: 8, padding: 10, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)' }}>
                         <Pressable onPress={() => handleRemoveCollection(id)}>
-                            <Text style={{ color: Palette.darkSienna, fontWeight: 500 }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color={Palette.darkSienna} /> Delete Collection</Text>
+                            <Text style={{ color: Palette.darkSienna, fontWeight: 500, fontFamily: 'ReenieBeanie_400Regular', fontSize: 25, }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color={Palette.darkSienna} /> Delete Collection</Text>
                         </Pressable>
                     </View>
                 </Pressable>
             </Modal>
-            {loading && <Text style={{ color: Palette.softDove }}>Loading...</Text>}
+            {loading && <Text style={{ color: Palette.softDove, fontFamily: 'ReenieBeanie_400Regular', fontSize: 20, }}>Loading...</Text>}
             <FlatList
                 data={shows}
                 keyExtractor={(item) => item.id.toString()}

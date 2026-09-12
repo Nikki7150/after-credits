@@ -6,4 +6,6 @@ export const LANGUAGE_NAMES: Record<string, string> ={
         es: 'Spanish',
         fr: 'French',
         hi: 'Hindi',
+        th: 'Thai',
+        kn: 'Kannada'
     };

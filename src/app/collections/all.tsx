@@ -63,7 +63,7 @@ export default function CollectionsScreen() {
             <View style={{ flexDirection: 'row', marginTop: 10, }}>
                 <Pressable onPress={() => setSelectedLanguage(null)}>
                     <View style={[styles.filters, selectedLanguage === null && styles.filtersActive]}>
-                        <Text style={{ fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
+                        <Text style={{ fontSize: 10, fontWeight: '600', textAlign: 'center', fontFamily: 'RockSalt_400Regular', lineHeight: 20, }}>
                             All ({shows.length})
                         </Text>
                     </View>
@@ -77,7 +77,7 @@ export default function CollectionsScreen() {
                     renderItem={({ item: [lang, showsInLang] }) => (
                         <Pressable onPress={() => setSelectedLanguage(lang)}>
                             <View style={[styles.filters, selectedLanguage === lang && styles.filtersActive]}>
-                                <Text style={{ fontSize: 15, fontWeight: 'semibold', textAlign: 'center', }}>
+                                <Text style={{ fontSize: 10, fontWeight: 'semibold', textAlign: 'center', fontFamily: 'RockSalt_400Regular', lineHeight: 20, }}>
                                     {LANGUAGE_NAMES[lang] ?? lang} ({showsInLang.length})
                                 </Text>
                             </View>

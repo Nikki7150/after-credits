@@ -235,7 +235,7 @@ export default function ShowDetailScreen() {
                     <Pressable style={{ flex: 1, backgroundColor: 'transparent' }} onPress={() => setIsMenuVisible(false)}>
                         <View style={{ position: 'absolute', top: 70, right: 30, backgroundColor: Palette.softDove, borderRadius: 8, padding: 10, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)' }}>
                             <Pressable onPress={handleRemoveFromWatchlist}>
-                                <Text style={{ color: Palette.darkSienna, fontWeight: 500 }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color={Palette.darkSienna} /> Remove from Watchlist</Text>
+                                <Text style={{ color: Palette.darkSienna, fontWeight: 500, fontFamily: 'ReenieBeanie_400Regular', fontSize: 25, }}> <Icon name="rubbish-bin-delete-button" height={13} width={13} color={Palette.darkSienna} /> Remove from Watchlist</Text>
                             </Pressable>
                         </View>
                     </Pressable>
@@ -269,17 +269,17 @@ export default function ShowDetailScreen() {
                 />
                 {text.length > 0 && (
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 10, paddingRight: 10, paddingTop: 5 }}>
-                        <Pressable onPress={() => handleSaveNotes}>
-                            <Text>✓</Text>
+                        <Pressable onPress={() => handleSaveNotes()}>
+                            <Text style={{ fontSize: 24 }}>✓</Text>
                         </Pressable>
-                        <Text>{save ? 'Saving' : 'Saved'}</Text>
+                        <Text  style={{ fontSize: 24, fontFamily: 'ReenieBeanie_400Regular', }}>{save ? 'Saving' : 'Saved'}</Text>
                     </View>
                 )}
                 <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')} style={show.status === 'want_to_watch' ? styles.wantButton : styles.watchButton}>
                     <Text style={show.status === 'watched' ? styles.meta2 : styles.meta1}>{show.status === 'watched' ? '☑ Watched' : '☐ Want to Watch'}</Text>
                 </Pressable>
                 {show.genres && show.genres.length > 0 && (
-                    <Text style={styles.meta}>{show.genres.join(', ')}</Text>
+                    <Text style={styles.meta}>Genres: {show.genres.join(', ')}</Text>
                 )}
                 {show.cast_members && show.cast_members.length > 0 && (
                     <FlatList
@@ -297,16 +297,18 @@ export default function ShowDetailScreen() {
                                     />
                                 )}
                                 <Text style={styles.castName} numberOfLines={1}>{item.name}</Text>
-                                <Text style={styles.castCharacter} numberOfLines={1}>{item.character}</Text>
+                                <Text style={styles.castCharacter} numberOfLines={1}>
+                                    {item.character || 'Self'}
+                                </Text>
                             </View>
                         )}
                     />
                 )}
                 {show.language && (
-                    <Text style={styles.meta1}>Language: {LANGUAGE_NAMES[show.language] ?? show.language}</Text>
+                    <Text style={[styles.meta1, { fontSize: 15, lineHeight: 25 }]}>Language: {LANGUAGE_NAMES[show.language] ?? show.language}</Text>
                 )}
                 <Pressable onPress={() => setIsDrowdownVisible(!isDropdownVisible)} style={isDropdownVisible ? styles.collectionButton1 : styles.collectionButton}>
-                    <Text style={{ color: Palette.softDove, fontWeight: 700, }}>
+                    <Text style={{ color: Palette.softDove, fontWeight: 700, fontFamily: 'ReenieBeanie_400Regular', fontSize: 30, }}>
                         {showCollectionNames.length > 0 ? showCollectionNames.join(', ') : 'Add to Collection'}
                     </Text>
                     <Text style={{ fontSize: 10, marginTop: 2, color: Palette.softDove,  }}>▼</Text>
@@ -315,11 +317,11 @@ export default function ShowDetailScreen() {
                     <View style={styles.dropdown}>
                         {collectionsList.map((item) => (
                             <Pressable key={item.id} onPress={() => handleAddToCollection(item.id)} style={styles.dropdownButton}>
-                                <Text style={{ color: Palette.softDove, fontWeight: 700, margin: 5, }}>{item.name}</Text>
+                                <Text style={{ color: Palette.softDove, fontWeight: 700, margin: 2, fontFamily: 'JimNightshade_400Regular', fontSize: 20, }}>{item.name}</Text>
                             </Pressable>
                         ))}
                         <Pressable onPress={() => setIsModalVisible(true)}>
-                            <Text style={{ color: Palette.softDove, fontWeight: 700, }}>+ New Collection</Text>
+                            <Text style={{ color: Palette.softDove, fontWeight: 700, fontFamily: 'ReenieBeanie_400Regular', fontSize: 30, }}>+ New Collection</Text>
                         </Pressable>
                     </View>
                 )}
@@ -367,18 +369,20 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     title: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
         textAlign: 'center',
         marginTop: 16,
         marginBottom: 5,
         color: Palette.spicedHotChocolate,
+        fontFamily: 'JimNightshade_400Regular',
     },
     year: {
         fontSize: 16,
         color: Palette.softDove,
         textAlign: 'center',
         fontWeight: 700, 
+        fontFamily: 'RockSalt_400Regular',
     },
     input: {
         justifyContent: "center",
@@ -388,28 +392,35 @@ const styles = StyleSheet.create({
         minHeight: 50,
         borderColor: Palette.spicedHotChocolate,
         padding: 5,
+        fontFamily: 'ReenieBeanie_400Regular',
+        fontSize: 28,
     },
     meta: {
         fontSize: 14,
         color: Palette.blackRaspberry,
         textAlign: 'center',
         paddingHorizontal: 16,
+        fontFamily: 'RockSalt_400Regular',
     },
     meta1: {
         fontSize: 20,
         textAlign: 'center',
         paddingHorizontal: 16,
-        fontFamily: 'Courier',
         color: Palette.spicedHotChocolate,
         fontWeight: 600, 
+        fontFamily: 'RockSalt_400Regular',
+        lineHeight: 30,
+        height: 20,
     },
     meta2: {
         fontSize: 20,
         textAlign: 'center',
         paddingHorizontal: 16,
-        fontFamily: 'Courier',
         color: Palette.softDove,
         fontWeight: 600, 
+        fontFamily: 'RockSalt_400Regular',
+        lineHeight: 30,
+        height: 20,
     },
     castContainer: {
         minHeight: 150,
@@ -426,12 +437,14 @@ const styles = StyleSheet.create({
     },
     castName: {
         fontWeight: 'bold',
-        fontSize: 13,
+        fontSize: 23,
         marginTop: 4,
+        fontFamily: 'JimNightshade_400Regular',
     },
     castCharacter: {
-        fontSize: 12,
-        color: 'gray',
+        fontSize: 22,
+        color: Palette.softDove,
+        fontFamily: 'JimNightshade_400Regular',
     },
     wantButton: {
         backgroundColor: Palette.softDove,

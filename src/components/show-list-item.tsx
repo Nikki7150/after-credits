@@ -35,8 +35,8 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     poster: {
-        width: 60,
-        height: 90,
+        width: 80,
+        height: 110,
         borderRadius: 6,
     },
     info: {
@@ -44,23 +44,27 @@ const styles = StyleSheet.create({
         marginLeft: 12,
     },
     title: {
-        fontSize: 16,
+        fontSize: 26,
         fontWeight: 600,
         color: Palette.blackRaspberry,
+        fontFamily: 'JimNightshade_400Regular',
     },
     title2: {
-        fontSize: 16,
+        fontSize: 26,
         fontWeight: 600,
         color: Palette.softDove,
+        fontFamily: 'JimNightshade_400Regular',
     },
     year: {
         marginTop: 4,
-        fontSize: 14,
+        fontSize: 24,
         color: Palette.spicedHotChocolate,
+        fontFamily: 'JimNightshade_400Regular',
     },
     year2: {
         marginTop: 4,
-        fontSize: 14,
+        fontSize: 24,
         color: Palette.moonRock,
+        fontFamily: 'JimNightshade_400Regular',
     },
 });

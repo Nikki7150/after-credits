@@ -121,7 +121,7 @@ export default function CollectionsScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <ThemedText type="title" style={{ color: Palette.softDove, }}>Collection</ThemedText>
+            <ThemedText type="title" style={{ color: Palette.softDove, fontFamily: 'RockSalt_400Regular', lineHeight: 80, paddingTop: 5, height: 60, }}>Collections</ThemedText>
             <Link href={`/collections/all`} asChild>
                 <Pressable>
                     <View style={[styles.shelfSquare, { flexDirection: 'row', overflow: 'hidden', aspectRatio: 2.3, alignItems: 'center', padding: 5 }]}>

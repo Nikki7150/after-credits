@@ -57,7 +57,7 @@ export default function SearchScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <ThemedText type="title" style={{ color: Palette.moonRock, }}>Search</ThemedText>
+            <ThemedText type="title" style={{ color: Palette.moonRock, fontFamily: 'RockSalt_400Regular', lineHeight: 80, paddingLeft: 5, paddingTop: 5, height: 60, }}>Search</ThemedText>
             <View style={styles.search}>
                 <Text style={styles.searchIcon}>⌕</Text>
                 <TextInput

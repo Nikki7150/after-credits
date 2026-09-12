@@ -43,9 +43,9 @@ export default function WatchlistScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedText type="title" style={{ color: Palette.darkSienna, }}>Watchlist</ThemedText>
-        <ThemedText type="small" style={{ color: Palette.spicedHotChocolate, }}>Want to Watch</ThemedText>
-        {loading && <ThemedText type="small" style={{ color: Palette.blackRaspberry, }}>Refreshing...</ThemedText>}
+        <ThemedText type="title" style={{ color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 80, paddingTop: 5, height: 60, }}>Watchlist</ThemedText>
+        <ThemedText type="subtitle" style={{ color: Palette.spicedHotChocolate, fontFamily: 'ReenieBeanie_400Regular', }}>Want to Watch</ThemedText>
+        {loading && <ThemedText type="subtitle" style={{ color: Palette.blackRaspberry, fontFamily: 'ReenieBeanie_400Regular', }}>Refreshing...</ThemedText>}
         <FlatList
           style={{ flex: 1, alignSelf: 'stretch' }}
           data={results}

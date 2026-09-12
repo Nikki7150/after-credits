@@ -57,7 +57,7 @@ export default function CollectionsScreen() {
         <SafeAreaView style={styles.container}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
                 <Pressable onPress={() => router.back()}>
-                    <Text>Back</Text>
+                    <Text style={{ color: Palette.softDove, fontWeight: 500, fontSize: 20, }}>く</Text>
                 </Pressable>
             </View>
             <View style={{ flexDirection: 'row', marginTop: 10, }}>

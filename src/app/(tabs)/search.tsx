@@ -1,16 +1,30 @@
 import { View, Text, StyleSheet, TextInput, Pressable, FlatList, Image } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IMAGE_BASE_URL, searchShows } from '@/lib/tmdb';
 import { supabase } from '@/lib/supabase';
 import { ShowListItem } from '@/components/show-list-item';
 import { ThemedText } from '@/components/themed-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Spacing, BottomTabInset, MaxContentWidth, Palette } from '@/constants/theme';
+import { useStore } from 'expo-router/build/global-state/useStore';
 
 export default function SearchScreen() {
     const [results, setResults] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [query, setQuery] = useState('');
+    const [savedTmdbIds, setSavedTmdbIds] = useState<Set<number>>(new Set());
+
+    const fetchSavedIds = async () => {
+        const { data, error } = await supabase
+            .from('shows')
+            .select('tmdb_id');
+        if (error) console.error("Error fetching saved ids: ", error);
+        else if (data) setSavedTmdbIds(new Set(data.map((row) => row.tmdb_id)));
+    };
+
+    useEffect(() => {
+        fetchSavedIds();
+    }, []);
 
     const handleSearch = async () => {
         setLoading(true);
@@ -26,13 +40,11 @@ export default function SearchScreen() {
     };
 
     const handleSave = async (item: any) => {
-        // 1. get the current user id
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             console.error('No user found');
             return;
         }
-        // 2. call supabase.from('shows').insert({...}) with the right fields mapped from item
         const { error } = await supabase.from('shows').insert({
             user_id: user.id,
             title: item.title || item.name,
@@ -42,11 +54,11 @@ export default function SearchScreen() {
             tmdb_id: item.id,
             language: item.original_language,
         });
-        // 3. log or alert success/failure
         if (error) {
             console.error('Error saving show:', error);
         } else {
             console.log('Show saved successfully');
+            fetchSavedIds();
         }
     };
 
@@ -76,25 +88,32 @@ export default function SearchScreen() {
             {loading && <Text>Loading...</Text>}
             <FlatList
                 data={results}
-                renderItem={({ item }) => (
-                    <View style={{ flexDirection: 'row', gap: 10, padding: 10, alignItems: 'center' }}>
-                        <View style={{ flex: 1 }}>
-                            <ShowListItem
-                                title={item.media_type === 'movie' ? item.title : item.name}
-                                year={
-                                    item.media_type === 'movie'
-                                        ? (item.release_date === '' ? 'TBA' : item.release_date.split('-')[0])
-                                        : (item.first_air_date === '' ? 'TBA' : item.first_air_date.split('-')[0])
-                                }
-                                posterPath={item.poster_path}
-                                page='search'
-                            />
+                renderItem={({ item }) => {
+                    const isSaved = savedTmdbIds.has(item.id);
+                    return(
+                        <View style={{ flexDirection: 'row', gap: 10, padding: 10, alignItems: 'center' }}>
+                            <View style={{ flex: 1 }}>
+                                <ShowListItem
+                                    title={item.media_type === 'movie' ? item.title : item.name}
+                                    year={
+                                        item.media_type === 'movie'
+                                            ? (item.release_date === '' ? 'TBA' : item.release_date.split('-')[0])
+                                            : (item.first_air_date === '' ? 'TBA' : item.first_air_date.split('-')[0])
+                                    }
+                                    posterPath={item.poster_path}
+                                    page='search'
+                                />
+                            </View>
+                            <Pressable 
+                                onPress={() => handleSave(item)} 
+                                disabled={isSaved}
+                                style={{ padding: 10, backgroundColor: isSaved ? Palette.moonRock : Palette.softDove, borderRadius: 5, marginLeft: 'auto' }}
+                            >
+                                <Text>{isSaved ? '✓' : '+'}</Text>
+                            </Pressable>
                         </View>
-                        <Pressable onPress={() => handleSave(item)} style={{ padding: 10, backgroundColor: 'lightgray', borderRadius: 5, marginLeft: 'auto' }}>
-                            <Text>+</Text>
-                        </Pressable>
-                    </View>
-                )}
+                    );
+                }}
                 keyExtractor={(item) => item.id.toString()}
             />
         </SafeAreaView>
@@ -130,8 +149,9 @@ const styles = StyleSheet.create({
     },
     searchInput: {
         width: '80%',
-        fontSize: 17,
+        fontSize: 27,
         color: Palette.spicedHotChocolate,
+        fontFamily: 'ReenieBeanie_400Regular',
     },
     searchClear: {
         fontSize: 25,

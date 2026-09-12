@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [isSignUp, setIsSignUp] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -32,12 +33,20 @@ export default function LoginScreen() {
         setLoading(true);
         setError('');
         try {
-            const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
             });
             if (error) {
                 setError(error.message);
+            } else if (data.user) {
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: data.user.id,
+                        username: username,
+                    });
+                if (profileError) console.error('Error creating profile: ', profileError);
             }
         } catch (err) {
             console.error('Error signing up:', err);
@@ -49,6 +58,15 @@ export default function LoginScreen() {
 
     return (
         <View style={styles.container}>
+            {isSignUp && (
+                <TextInput
+                    placeholder="username"
+                    style={styles.textInput}
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize='none'
+                />
+            )}
             <TextInput
                 placeholder="Email"
                 style={styles.textInput}

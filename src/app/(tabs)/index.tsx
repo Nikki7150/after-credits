@@ -10,6 +10,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 import { ShowListItem } from '@/components/show-list-item';
 import { Palette } from '@/constants/theme';
+import Icon from 'react-native-ico-material-design';
 
 export default function WatchlistScreen() {
   const [results, setResults] = useState<any[]>([]);
@@ -44,6 +45,11 @@ export default function WatchlistScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedText type="title" style={{ color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 80, paddingTop: 5, height: 60, }}>Watchlist</ThemedText>
+        <Link href="/profile" asChild>
+          <Pressable style={{ position: 'absolute', top: 100, right: 20 }}>
+            <Icon name="round-account-button-with-user-inside" height={34} width={34} color={Palette.darkSienna} />
+          </Pressable>
+        </Link>
         <ThemedText type="subtitle" style={{ color: Palette.spicedHotChocolate, fontFamily: 'ReenieBeanie_400Regular', }}>Want to Watch</ThemedText>
         {loading && <ThemedText type="subtitle" style={{ color: Palette.blackRaspberry, fontFamily: 'ReenieBeanie_400Regular', }}>Refreshing...</ThemedText>}
         <FlatList

@@ -13,7 +13,7 @@ export default function RootLayout() {
   if (!fontsLoaded) {
     return null;
   }
-  
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
@@ -21,6 +21,7 @@ export default function RootLayout() {
       <Stack.Screen name="show/[id]" />
       <Stack.Screen name="collection/[id]" />
       <Stack.Screen name="collections/all" />
+      <Stack.Screen name="profile" />
     </Stack>
   );
 }

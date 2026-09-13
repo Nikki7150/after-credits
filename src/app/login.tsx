@@ -1,6 +1,9 @@
-import { View, Text, StyleSheet, TextInput, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Pressable, } from 'react-native';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { ThemedText } from '@/components/themed-text';
+import { BottomTabInset, MaxContentWidth, Palette, Spacing } from '@/constants/theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -57,10 +60,12 @@ export default function LoginScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+            <ThemedText type='title' style={{ fontSize: 41.5, color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 80, paddingLeft: 7, height: 70, }}>AfterCredits</ThemedText>
+            <ThemedText type="subtitle" style={{ color: Palette.spicedHotChocolate, fontFamily: 'ReenieBeanie_400Regular', fontSize: 30, lineHeight: 25, textAlign: 'center', marginBottom: 20, }}>The experience isn't over when the credits roll</ThemedText>
             {isSignUp && (
                 <TextInput
-                    placeholder="username"
+                    placeholder="Username"
                     style={styles.textInput}
                     value={username}
                     onChangeText={setUsername}
@@ -87,37 +92,48 @@ export default function LoginScreen() {
                 <Text style={styles.buttonText}>{loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Login'}</Text>
             </Pressable>
             <Pressable onPress={() => setIsSignUp(!isSignUp)} style={{ marginTop: 10 }}>
-                <Text style={{ color: 'blue' }}>{isSignUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}</Text>
+                <Text style={{ color: Palette.blackRaspberry, fontFamily: 'JimNightshade_400Regular', fontSize: 20, }}>{isSignUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}</Text>
             </Pressable>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    safeArea: {
         flex: 1,
+        paddingHorizontal: Spacing.four,
+        paddingTop: Spacing.four,
+        gap: Spacing.three,
+        paddingBottom: BottomTabInset + Spacing.three,
+        maxWidth: MaxContentWidth,
+        alignSelf: 'center',
+        width: '100%',
+        backgroundColor: Palette.softDove,
         justifyContent: 'center',
-        paddingHorizontal: 20,
     },
     textInput: {
         height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
+        borderBottomWidth: 2,
+        borderColor: Palette.moonRock,
         marginBottom: 12,
         paddingHorizontal: 10,
+        color: Palette.blackRaspberry,
+        fontFamily: 'ReenieBeanie_400Regular',
+        fontSize: 30,
     },
     button: {
-        backgroundColor: 'blue',
+        backgroundColor: Palette.darkSienna,
         paddingVertical: 10,
         alignItems: 'center',
         borderRadius: 5,
     },
     buttonText: {
-        color: 'white',
+        color: Palette.softDove,
         fontSize: 16,
+        fontFamily: 'RockSalt_400Regular',
     },
     errorText: {
-        color: 'red',
+        color: Palette.darkSienna,
         marginBottom: 12,
     },
 });

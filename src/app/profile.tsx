@@ -42,7 +42,7 @@ export default function ProfileScreen() {
             <Pressable onPress={() => router.back()}>
                 <Text style={{ color: Palette.blackRaspberry, fontWeight: 500, fontSize: 20, }}>く</Text>
             </Pressable>
-            <ThemedText type="title" style={{ color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 90, paddingTop: 5, height: 70, paddingLeft: 5, }}>Profile</ThemedText>
+            <ThemedText type="default" style={{ color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 60, paddingTop: 5, height: 50, paddingLeft: 5, }}>Profile</ThemedText>
             <Pressable onPress={() => handleSignOut()}>
                 <Text style={{ color: Palette.blackRaspberry, fontWeight: 500, fontSize: 20, }}>Sign Out</Text>
             </Pressable>

@@ -327,21 +327,23 @@ export default function ShowDetailScreen() {
                 )}
                 <Modal visible={isModalVisible} transparent animationType='fade'>
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 12, width: '80%' }}>
-                            <Text>Collection Name: </Text>
+                        <View style={{ backgroundColor: Palette.softDove, padding: 20, borderRadius: 12, width: '80%' }}>
+                            <Text style={{ fontSize: 25, fontFamily: 'JimNightshade_400Regular', }}>Collection Name: </Text>
                             <TextInput
                                 style={styles.input}
                                 onChangeText={(value) => setCollectionName(value)}
                                 value={collectionName}
                                 placeholder="Eg. Favorites..."
-                                placeholderTextColor="#999"
+                                placeholderTextColor={Palette.moonRock}
                             />
-                            <Pressable onPress={() => setIsModalVisible(false)}>
-                                <Text>Cancel</Text>
-                            </Pressable>
-                            <Pressable onPress={() => { handleCreateCollection(); setIsModalVisible(false); }}>
-                                <Text>Create</Text>
-                            </Pressable>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 5 }}>
+                                <Pressable onPress={() => setIsModalVisible(false)} style={[styles.modalButtons, {backgroundColor: Palette.softDove}]}>
+                                    <Text style={{ fontFamily: 'RockSalt_400Regular' }}>Cancel</Text>
+                                </Pressable>
+                                <Pressable onPress={() => { handleCreateCollection(); setIsModalVisible(false); }} style={styles.modalButtons}>
+                                    <Text style={{ fontFamily: 'RockSalt_400Regular' }}>Create</Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
                 </Modal>
@@ -500,5 +502,15 @@ const styles = StyleSheet.create({
     },
     dropdownButton: {
         padding: 5,
+    },
+    modalButtons: {
+        fontFamily: 'RockSalt_400Regular',
+        paddingLeft: 5, 
+        paddingRight: 5, 
+        backgroundColor: Palette.moonRock, 
+        borderRadius: 5,
+        marginTop: 5,
+        borderWidth: 2, 
+        borderColor: Palette.moonRock,
     },
 })

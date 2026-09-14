@@ -1,15 +1,15 @@
-import { FlatList, Platform, Pressable, StyleSheet, Text, Image, View, Modal } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Pressable, StyleSheet, Text, Image, View, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link, useFocusEffect, router } from 'expo-router'; // runs every time screen in focus
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 import { Palette } from '@/constants/theme';
 import Icon from 'react-native-ico-material-design';
-import { IMAGE_BASE_URL } from '@/lib/tmdb';
+import { Lucide } from "@react-native-vector-icons/lucide";
+
 
 export default function ProfileScreen() {
     const [username, setUsername] = useState<string | null>(null);
@@ -17,6 +17,11 @@ export default function ProfileScreen() {
     const [profilePic, setProfilePic] = useState<string | null>(null);
     const [profileLoading, setProfileLoading] = useState(true);
     const [profileModal, isProfileModal] = useState(false);
+    const [usernameModal, isUsernameModal] = useState(false);
+    const [passwordModal, isPasswordModal] = useState(false);
+    const [editedUsername, setEditedUsername] = useState('');
+    const [editedPassword, setEditedPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const fetchProfile = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -42,6 +47,49 @@ export default function ProfileScreen() {
         
     };
 
+    const handleUpdateUsername = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { error } = await supabase
+            .from('profiles')
+            .update({ username: editedUsername })
+            .eq('id', user.id);
+        if (error) console.error('Error updating username: ', error);
+        else {
+            setUsername(editedUsername);
+            isUsernameModal(false);
+        }
+    }
+
+    const handleChangePassword = async () => {
+        const { error } = await supabase.auth.updateUser({ password: editedPassword });
+        if (error) console.error('Error updating password: ', error);
+        else {
+            setEditedPassword('');
+            isPasswordModal(false);
+        }
+    };
+
+    const handlePickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+        });
+        if (!result.canceled) uploadAvatar(result.assets[0].uri);
+    };
+
+    const handleModalFunction = () => {
+        if (profileModal) {
+            isPasswordModal(false);
+        } else if (usernameModal) {
+            handleUpdateUsername();
+        } else if (passwordModal) {
+            handleChangePassword();
+        }
+    };
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <ThemedText type="title" style={{ color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 85, paddingTop: 6, paddingLeft: 5, height: 65, }}>Profile</ThemedText>
@@ -58,19 +106,43 @@ export default function ProfileScreen() {
             ) : (
                 <Icon name="round-account-button-with-user-inside" height={125} width={125} color={Palette.spicedHotChocolate} />
             )}
-            <Modal visible={profileModal} transparent animationType="fade">
-                <Pressable style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center',  }} onPress={() => isProfileModal(false)}>
-                    <View style={{ backgroundColor: Palette.softDove, borderRadius: 8, padding: 20, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)', justifyContent: 'center', alignItems: 'center',  }}>
-                        <Text style={{ fontFamily: 'JimNightshade_400Regular', fontSize: 30, color: Palette.darkSienna, }}>Upload profile picture</Text>
-                        <Text style={{ fontFamily: 'JimNightshade_400Regular', fontSize: 20, color: Palette.blackRaspberry, }}>(square image recommended)</Text>
-                        <Pressable style={[styles.profilePic, { borderWidth: 2, borderColor: Palette.spicedHotChocolate, backgroundColor: Palette.moonRock, }]}>
-                            <Icon name="google-drive-image" height={40} width={40} color={Palette.spicedHotChocolate} style={{ top: 40, left: 40, }} />
-                        </Pressable>
+            <Modal visible={profileModal || usernameModal || passwordModal} transparent animationType="fade">
+                <Pressable style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center',  }} onPress={() => { isProfileModal(false); isUsernameModal(false); isPasswordModal(false); }}>
+                    <View style={{ backgroundColor: Palette.softDove, borderRadius: 8, padding: 20, boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)', justifyContent: 'center', alignItems: 'center', width: 300, }}>
+                        <Text style={{ fontFamily: 'JimNightshade_400Regular', fontSize: 30, color: Palette.darkSienna, }}>{profileModal ? 'Upload profile picture' : usernameModal ? 'Enter new Username' : passwordModal ? 'Enter new Password' : ' '}</Text>
+                        <Text style={{ fontFamily: 'JimNightshade_400Regular', fontSize: 20, color: Palette.blackRaspberry, height: profileModal ? 24 : 0 }}>{profileModal ? '(square image recommended)' : ''}</Text>
+                        {profileModal ? (
+                            <Pressable style={[styles.profilePic, { borderWidth: 2, borderColor: Palette.spicedHotChocolate, backgroundColor: Palette.moonRock, }]}>
+                                <Icon name="google-drive-image" height={40} width={40} color={Palette.spicedHotChocolate} style={{ top: 40, left: 40, }} />
+                            </Pressable>
+                        ) : usernameModal ? (
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={(value) => setEditedUsername(value)}
+                                value={editedUsername}
+                                placeholder={username ?? 'Set a username'}
+                                placeholderTextColor="#999"
+                            />
+                        ) : (
+                            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                                <TextInput
+                                    style={[styles.input, { width: '95%' }]}
+                                    onChangeText={(value) => setEditedPassword(value)}
+                                    value={editedPassword}
+                                    secureTextEntry={!showPassword}
+                                    placeholder="new password"
+                                    placeholderTextColor="#999"
+                                />
+                                <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: 5, }}>
+                                    <Lucide name={showPassword ? "eye" : "eye-closed"} size={20} color={Palette.darkSienna} />
+                                </Pressable>
+                            </View>
+                        )}
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 30, margin: 5 }}>
-                            <Pressable onPress={() => isProfileModal(false)} style={[styles.modalButtons, {backgroundColor: Palette.softDove}]}>
+                            <Pressable onPress={() => { isProfileModal(false); isUsernameModal(false); isPasswordModal(false); }} style={[styles.modalButtons, {backgroundColor: Palette.softDove}]}>
                                 <Text style={{ fontFamily: 'RockSalt_400Regular' }}>Cancel</Text>
                             </Pressable>
-                            <Pressable onPress={() => { isProfileModal(false); }} style={styles.modalButtons}>
+                            <Pressable onPress={() => handleModalFunction()} style={styles.modalButtons}>
                                 <Text style={{ fontFamily: 'RockSalt_400Regular' }}> Save </Text>
                             </Pressable>
                         </View>
@@ -78,21 +150,31 @@ export default function ProfileScreen() {
                 </Pressable>
             </Modal>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between',  alignItems: 'center', width: '100%',  }}>
-                <Text>Username: </Text>
-                <ThemedText style={{ color: Palette.blackRaspberry, fontSize: 20 }}>
+                <Text style={{ color: Palette.blackRaspberry, fontSize: 20, fontFamily: 'JimNightshade_400Regular', }}>Username: </Text>
+                <ThemedText style={{ fontSize: 40, fontFamily: 'ReenieBeanie_400Regular', lineHeight: 40, color: Palette.darkSienna, }}>
                     {username ?? 'Set a username'}
                 </ThemedText>
-                <Pressable style={{ padding: 10, borderWidth: 1, borderColor: Palette.softDove, marginLeft: 30, }}>
+                <Pressable onPress={() => isUsernameModal(true)} style={{ padding: 10, borderWidth: 1, borderColor: Palette.softDove, marginLeft: 10, }}>
                     <Icon name="create-new-pencil-button" width={15} height={15} color={Palette.softDove} />
                 </Pressable>
             </View>
-            <View >
-                <ThemedText style={{ color: Palette.blackRaspberry, fontSize: 20 }}>
-                    {email ?? 'No email set'}
+            <ThemedText style={{ fontSize: 30, fontFamily: 'ReenieBeanie_400Regular', lineHeight: 40, color: Palette.darkSienna, borderBottomWidth: 1, borderColor: Palette.spicedHotChocolate }}>
+                {email ?? 'No email set'}
+            </ThemedText>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between',  alignItems: 'center', width: '100%',  }}>
+                <Text style={{ color: Palette.blackRaspberry, fontSize: 20, fontFamily: 'JimNightshade_400Regular', }}>Password: </Text>
+                <ThemedText style={{ fontSize: 40, fontFamily: 'ReenieBeanie_400Regular', lineHeight: 40, color: Palette.darkSienna, }}>
+                    ••••••••
                 </ThemedText>
+                <Pressable onPress={() => isPasswordModal(true)} style={{ padding: 10, borderWidth: 1, borderColor: Palette.softDove, marginLeft: 10, }}>
+                    <Icon name="create-new-pencil-button" width={15} height={15} color={Palette.softDove} />
+                </Pressable>
             </View>
             <Pressable onPress={() => handleSignOut()}>
                 <Text style={{ color: Palette.blackRaspberry, fontWeight: '500', fontSize: 20, }}>Sign Out</Text>
+            </Pressable>
+            <Pressable>
+                <Text style={{ color: Palette.darkSienna, fontWeight: '500', fontSize: 20, }}>Delete Account</Text>
             </Pressable>
         </SafeAreaView>
     );
@@ -116,6 +198,8 @@ const styles = StyleSheet.create({
         height: 125,
         borderRadius: 62.5,
         marginTop: 10,
+        borderWidth: 2,
+        borderColor: Palette.spicedHotChocolate,
     },
     modalButtons: {
         fontFamily: 'RockSalt_400Regular',
@@ -127,4 +211,17 @@ const styles = StyleSheet.create({
         borderWidth: 2, 
         borderColor: Palette.moonRock,
     },
+    input: {
+        justifyContent: "center",
+        alignItems: "stretch",
+        borderWidth: 2,
+        height: undefined,
+        minHeight: 50,
+        borderColor: Palette.spicedHotChocolate,
+        padding: 5,
+        fontFamily: 'ReenieBeanie_400Regular',
+        fontSize: 28,
+        lineHeight: 35,
+        width: '100%',
+    }
 });

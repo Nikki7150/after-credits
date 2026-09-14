@@ -53,7 +53,6 @@ export default function RootLayout() {
       <Stack.Screen name="show/[id]" />
       <Stack.Screen name="collection/[id]" />
       <Stack.Screen name="collections/all" />
-      <Stack.Screen name="profile" />
     </Stack>
   );
 }

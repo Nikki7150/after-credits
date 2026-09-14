@@ -70,9 +70,35 @@ export default function ProfileScreen() {
         }
     };
 
+    const uploadAvatar = async (uri: string) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const filePath = `${user.id}.jpg`;
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, blob, { contentType: 'image/jpeg', upsert: true });
+        if (uploadError) {
+            console.error('Error uploading avatar:', uploadError);
+            return;
+        }
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: urlData.publicUrl })
+            .eq('id', user.id);
+        if (updateError) {
+            console.error('Error updating profile:', updateError);
+        } else {
+            setProfilePic(urlData.publicUrl);
+            isProfileModal(false);
+        }
+    };
+
     const handlePickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: true,
             aspect: [1, 1],
             quality: 0.7,
@@ -112,7 +138,7 @@ export default function ProfileScreen() {
                         <Text style={{ fontFamily: 'JimNightshade_400Regular', fontSize: 30, color: Palette.darkSienna, }}>{profileModal ? 'Upload profile picture' : usernameModal ? 'Enter new Username' : passwordModal ? 'Enter new Password' : ' '}</Text>
                         <Text style={{ fontFamily: 'JimNightshade_400Regular', fontSize: 20, color: Palette.blackRaspberry, height: profileModal ? 24 : 0 }}>{profileModal ? '(square image recommended)' : ''}</Text>
                         {profileModal ? (
-                            <Pressable style={[styles.profilePic, { borderWidth: 2, borderColor: Palette.spicedHotChocolate, backgroundColor: Palette.moonRock, }]}>
+                            <Pressable onPress={() => handlePickImage()} style={[styles.profilePic, { borderWidth: 2, borderColor: Palette.spicedHotChocolate, backgroundColor: Palette.moonRock, }]}>
                                 <Icon name="google-drive-image" height={40} width={40} color={Palette.spicedHotChocolate} style={{ top: 40, left: 40, }} />
                             </Pressable>
                         ) : usernameModal ? (

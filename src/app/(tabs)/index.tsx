@@ -1,5 +1,5 @@
 import * as Device from 'expo-device';
-import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
+import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useFocusEffect } from 'expo-router'; // runs every time screen in focus
 import { useCallback, useState } from 'react';
@@ -46,23 +46,31 @@ export default function WatchlistScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ThemedText type="title" style={{ color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 80, paddingTop: 5, height: 60, }}>Watchlist</ThemedText>
         {loading && <ThemedText type="subtitle" style={{ color: Palette.blackRaspberry, fontFamily: 'ReenieBeanie_400Regular', }}>Refreshing...</ThemedText>}
-        <FlatList
-          style={{ flex: 1, alignSelf: 'stretch' }}
-          data={results}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <Link href={`/show/${item.id}`} asChild>
-              <Pressable>
-                <ShowListItem
-                  title={item.title}
-                  year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
-                  posterPath={item.poster_path}
-                  page='watchlist'
-                />
-              </Pressable>
-            </Link>
-          )}
-        />
+        {results.length > 0 ? (
+          <FlatList
+            style={{ flex: 1, alignSelf: 'stretch' }}
+            data={results}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <Link href={`/show/${item.id}`} asChild>
+                <Pressable>
+                  <ShowListItem
+                    title={item.title}
+                    year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
+                    posterPath={item.poster_path}
+                    page='watchlist'
+                  />
+                </Pressable>
+              </Link>
+            )}
+          />
+        ) : (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ThemedText style={{ fontSize: 30, fontFamily: 'ReenieBeanie_400Regular', lineHeight: 30, color: Palette.darkSienna }}>
+              The credits haven't rolled yet.
+            </ThemedText>
+          </View>
+        )}
       </SafeAreaView>
     </ThemedView>
   );

@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import { Pressable, StyleSheet, Text, Image, View, Modal, TextInput } from 'react-native';
+import { Pressable, StyleSheet, Text, Image, View, Modal, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 
@@ -114,6 +114,10 @@ export default function ProfileScreen() {
         } else if (passwordModal) {
             handleChangePassword();
         }
+    };
+
+    const handleDeleteAccount = async () => {
+        Alert.alert('Delete Account', 'This action is not available yet.');
     };
 
     return (

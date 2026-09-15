@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingTop: Spacing.four,
         gap: Spacing.three,
-        paddingBottom: BottomTabInset + Spacing.three,
+        paddingBottom: Spacing.one,
         maxWidth: MaxContentWidth,
         alignSelf: 'center',
         width: '100%',

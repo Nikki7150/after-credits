@@ -117,7 +117,36 @@ export default function ProfileScreen() {
     };
 
     const handleDeleteAccount = async () => {
-        Alert.alert('Delete Account', 'This action is not available yet.');
+        Alert.alert('Delete Account', 'This will permanently delete all your shows, collections, and profile data. This cannot be undone.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        const { data: { user } } = await supabase.auth.getUser();
+                        if (!user) return;
+                        const { error: showsError } = await supabase
+                            .from('shows')
+                            .delete()
+                            .eq('user_id', user.id);
+                        if (showsError) console.error('error deleting shows: ', showsError);
+                        const { error: collectionsError } = await supabase
+                            .from('collections')
+                            .delete()
+                            .eq('user_id', user.id);
+                        if (collectionsError) console.error('error deleting collections: ', collectionsError);
+                        const { error: profileError } = await supabase
+                            .from('profiles')
+                            .delete()
+                            .eq('id', user.id);
+                        if (profileError) console.error('error deleting profile: ', profileError);
+                        const { error: signOutError } = await supabase.auth.signOut();
+                        if (signOutError) console.error('Error signing out: ', signOutError);
+                    },
+                },
+            ]
+        );
     };
 
     return (
@@ -203,7 +232,7 @@ export default function ProfileScreen() {
             <Pressable onPress={() => handleSignOut()}>
                 <Text style={{ color: Palette.blackRaspberry, fontWeight: '500', fontSize: 20, }}>Sign Out</Text>
             </Pressable>
-            <Pressable>
+            <Pressable onPress={handleDeleteAccount}>
                 <Text style={{ color: Palette.darkSienna, fontWeight: '500', fontSize: 20, }}>Delete Account</Text>
             </Pressable>
         </SafeAreaView>

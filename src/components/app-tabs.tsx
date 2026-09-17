@@ -18,17 +18,14 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>Watchlist</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="checklist" md="checklist" />
       </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="search">
         <NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="magnifyingglass" md="search" />
       </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="collections">
         <NativeTabs.Trigger.Label>Collections</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="square.stack" md="library_books" />
       </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="person.circle" md="account_circle" />

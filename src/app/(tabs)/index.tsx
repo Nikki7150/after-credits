@@ -45,11 +45,15 @@ export default function WatchlistScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedText type="title" style={{ color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 80, paddingTop: 5, height: 60, }}>Watchlist</ThemedText>
+        <Pressable onPress={fetchShows} style={{ alignSelf: 'flex-end', padding: 8, position: 'absolute', top: 100, right: 20, }}>
+          <Icon name="refresh-button" width={20} height={20} color={Palette.darkSienna} />
+        </Pressable>
         {loading && <ThemedText type="subtitle" style={{ color: Palette.blackRaspberry, fontFamily: 'ReenieBeanie_400Regular', }}>Refreshing...</ThemedText>}
         {results.length > 0 ? (
           <FlatList
             style={{ flex: 1, alignSelf: 'stretch' }}
             data={results}
+            refreshing={loading}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <Link href={`/show/${item.id}`} asChild>

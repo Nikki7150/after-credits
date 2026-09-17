@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Spacing, BottomTabInset, MaxContentWidth, Palette } from '@/constants/theme';
 import { IMAGE_BASE_URL } from '@/lib/tmdb';
+import Icon from 'react-native-ico-material-design';
 
 export default function CollectionsScreen() {
     const [shows, setShows] = useState<any[]>([]);
@@ -122,6 +123,17 @@ export default function CollectionsScreen() {
     return (
         <SafeAreaView style={styles.safeArea}>
             <ThemedText type="title" style={{ color: Palette.softDove, fontFamily: 'RockSalt_400Regular', lineHeight: 80, paddingTop: 5, height: 60, }}>Collections</ThemedText>
+            <Pressable 
+                onPress={() => {
+                    fetchShows();
+                    fetchCollections();
+                    fetchPosterPerCollection();
+                }} 
+                style={{ alignSelf: 'flex-end', padding: 8, position: 'absolute', top: 100, right: 20, }}
+            >
+                <Icon name="refresh-button" width={20} height={20} color={Palette.softDove} />
+            </Pressable>
+            {loading && <ThemedText type="subtitle" style={{ color: Palette.blackRaspberry, fontFamily: 'ReenieBeanie_400Regular', }}>Refreshing...</ThemedText>}
             <Link href={`/collections/all`} asChild>
                 <Pressable>
                     <View style={[styles.shelfSquare, { flexDirection: 'row', overflow: 'hidden', aspectRatio: 2.3, alignItems: 'center', padding: 5 }]}>
@@ -173,8 +185,8 @@ export default function CollectionsScreen() {
             </Pressable>
             <Modal visible={isModalVisible} transparent animationType='fade'>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                    <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 12, width: '80%' }}>
-                        <Text>Collection Name: </Text>
+                    <View style={{ backgroundColor: Palette.softDove, padding: 20, borderRadius: 12, width: '80%' }}>
+                        <Text style={{ fontFamily: 'JimNightshade_400Regular', fontSize: 30, color: Palette.darkSienna, }}>Collection Name: </Text>
                         <TextInput
                             style={styles.input}
                             onChangeText={(value) => setCollectionName(value)}
@@ -182,12 +194,14 @@ export default function CollectionsScreen() {
                             placeholder="Eg. Favorites..."
                             placeholderTextColor="#999"
                         />
-                        <Pressable onPress={() => setIsModalVisible(false)}>
-                            <Text>Cancel</Text>
-                        </Pressable>
-                        <Pressable onPress={() => { handleCreateCollection(); setIsModalVisible(false); }}>
-                            <Text>Create</Text>
-                        </Pressable>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 30, margin: 5 }}>
+                            <Pressable onPress={() => setIsModalVisible(false)} style={[styles.modalButtons, {backgroundColor: Palette.softDove}]}>
+                                <Text style={{ fontFamily: 'RockSalt_400Regular' }}>Cancel</Text>
+                            </Pressable>
+                            <Pressable onPress={() => { handleCreateCollection(); setIsModalVisible(false); }} style={styles.modalButtons}>
+                                <Text style={{ fontFamily: 'RockSalt_400Regular' }}>Create</Text>
+                            </Pressable>
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -201,7 +215,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingTop: Spacing.four,
         gap: Spacing.three,
-        paddingBottom: Spacing.one,
+        paddingBottom: Spacing.one - 15,
         maxWidth: MaxContentWidth,
         alignSelf: 'center',
         width: '100%',
@@ -222,8 +236,8 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 25,
         alignItems: 'center',
-        bottom: -50,
-        right: -300,
+        bottom: 25,
+        right: -350,
         boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)',
     },
     meta: {
@@ -237,8 +251,12 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         height: undefined,
         minHeight: 50,
-        borderColor: "#d1d1d1",
+        borderColor: Palette.spicedHotChocolate,
         padding: 5,
+        fontFamily: 'ReenieBeanie_400Regular',
+        fontSize: 28,
+        lineHeight: 35,
+        width: '100%',
     },
     shelfSquare: {
         aspectRatio: 1,
@@ -250,5 +268,15 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontWeight: '600',
         fontFamily: 'RockSalt_400Regular',
+    },
+    modalButtons: {
+        fontFamily: 'RockSalt_400Regular',
+        paddingLeft: 5, 
+        paddingRight: 5, 
+        backgroundColor: Palette.moonRock, 
+        borderRadius: 5,
+        marginTop: 5,
+        borderWidth: 2, 
+        borderColor: Palette.moonRock,
     },
 })

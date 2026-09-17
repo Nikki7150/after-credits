@@ -9,12 +9,14 @@ import { supabase } from '@/lib/supabase';
 import { Palette } from '@/constants/theme';
 import Icon from 'react-native-ico-material-design';
 import { Lucide } from "@react-native-vector-icons/lucide";
+import { LANGUAGE_NAMES } from '@/lib/languages';
 
 
 export default function ProfileScreen() {
     const [username, setUsername] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
     const [profilePic, setProfilePic] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const [profileLoading, setProfileLoading] = useState(true);
     const [profileModal, isProfileModal] = useState(false);
     const [usernameModal, isUsernameModal] = useState(false);
@@ -22,8 +24,35 @@ export default function ProfileScreen() {
     const [editedUsername, setEditedUsername] = useState('');
     const [editedPassword, setEditedPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [allShows, setAllShows] = useState<any[]>([]);
+
+    const fetchStats = async () => {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        try {
+            const { data, error } = await supabase
+                .from('shows')
+                .select('*')
+                .eq('user_id', user.id);
+            if (error) {
+                console.error('Error fetching starts:', error);
+            } else if (data) {
+                setAllShows(data || []);
+            }
+        } catch (error) {
+            console.error('Error fetching shows:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchStats();
+    }, [])
 
     const fetchProfile = async () => {
+        setLoading(true);
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return; 
         setEmail(user.email ?? null);
@@ -35,6 +64,7 @@ export default function ProfileScreen() {
         else if (data && data.length > 0) { setUsername(data[0].username); setProfilePic(data[0].avatar_url); }
         else { setUsername(null); setProfilePic(null); }
         setProfileLoading(false)
+        setLoading(false);
     };
 
     useEffect(() => {
@@ -84,14 +114,15 @@ export default function ProfileScreen() {
             return;
         }
         const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        const cacheBustedUrl = `${urlData.publicUrl}?updated=${Date.now()}`;
         const { error: updateError } = await supabase
             .from('profiles')
-            .update({ avatar_url: urlData.publicUrl })
+            .update({ avatar_url: cacheBustedUrl })
             .eq('id', user.id);
         if (updateError) {
             console.error('Error updating profile:', updateError);
         } else {
-            setProfilePic(urlData.publicUrl);
+            setProfilePic(cacheBustedUrl);
             isProfileModal(false);
         }
     };
@@ -149,9 +180,38 @@ export default function ProfileScreen() {
         );
     };
 
+    const totalShows = allShows.length;
+    const watchedCount = allShows.filter(show => show.status === "watched").length;
+    const wantToWatch = allShows.filter(show => show.status === "want_to_watch").length;
+    const mostWatchedLanguage = (() => {
+        if (allShows.length === 0) return 'None';
+        const groupedByLanguage = allShows.reduce((acc: Record<string, any[]>, show) => {
+            const lang = show.language ?? 'unknown';
+            if (!acc[lang]) {
+                acc[lang] = [];
+            }
+            acc[lang].push(show);
+            return acc;
+        }, {});
+        const sortedLanguages = Object.entries(groupedByLanguage).sort(
+            (a, b) => b[1].length - a[1].length
+        );
+        return sortedLanguages[0]?.[0] || "Unknown";
+    })();
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <ThemedText type="title" style={{ color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', lineHeight: 85, paddingTop: 6, paddingLeft: 5, height: 65, }}>Profile</ThemedText>
+            <Pressable 
+                onPress={() => {
+                    fetchProfile();
+                    fetchStats();
+                }}
+                style={{ alignSelf: 'flex-end', padding: 8, position: 'absolute', top: 100, right: 20, }}
+            >
+                <Icon name="refresh-button" width={20} height={20} color={Palette.softDove} />
+            </Pressable>
+            {loading && <ThemedText type="subtitle" style={{ color: Palette.blackRaspberry, fontFamily: 'ReenieBeanie_400Regular', }}>Refreshing...</ThemedText>}
             {profilePic ? (
                 <View>
                     <Image
@@ -229,11 +289,28 @@ export default function ProfileScreen() {
                     <Icon name="create-new-pencil-button" width={15} height={15} color={Palette.softDove} />
                 </Pressable>
             </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginVertical: 20 }}>
+                <View style={styles.cards}>
+                    <Text style={{ fontSize: 28, fontWeight: 'bold', color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', }}>{totalShows}</Text>
+                    <Text style={{ fontSize: 20, color: Palette.blackRaspberry, fontFamily: 'JimNightshade_400Regular', }}>Total Shows</Text>
+                </View>
+                <View style={styles.cards}>
+                    <Text style={{ fontSize: 28, fontWeight: 'bold', color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', }}>{watchedCount}</Text>
+                    <Text style={{ fontSize: 20, color: Palette.blackRaspberry, fontFamily: 'JimNightshade_400Regular', }}>Watched</Text>
+                </View>
+                <View style={styles.cards}>
+                    <Text style={{ fontSize: 28, fontWeight: 'bold', color: Palette.darkSienna, fontFamily: 'RockSalt_400Regular', }}>{wantToWatch}</Text>
+                    <Text style={{ fontSize: 20, color: Palette.blackRaspberry, fontFamily: 'JimNightshade_400Regular', marginLeft: -3, }}>Want to Watch</Text>
+                </View>
+            </View>
+            <Text style={{ textAlign: 'center', color: Palette.blackRaspberry, fontFamily: 'RockSalt_400Regular', fontSize: 18, }}>
+                Most watched language: {LANGUAGE_NAMES[mostWatchedLanguage] ?? mostWatchedLanguage}
+            </Text>
             <Pressable onPress={() => handleSignOut()}>
-                <Text style={{ color: Palette.blackRaspberry, fontWeight: '500', fontSize: 20, }}>Sign Out</Text>
+                <Text style={{ color: Palette.blackRaspberry, fontWeight: '500', fontSize: 50, fontFamily: 'ReenieBeanie_400Regular', marginBottom: 5, }}>Sign Out</Text>
             </Pressable>
             <Pressable onPress={handleDeleteAccount}>
-                <Text style={{ color: Palette.darkSienna, fontWeight: '500', fontSize: 20, }}>Delete Account</Text>
+                <Text style={{ color: Palette.darkSienna, fontWeight: '500', fontSize: 40, fontFamily: 'ReenieBeanie_400Regular', }}>Delete Account</Text>
             </Pressable>
         </SafeAreaView>
     );
@@ -282,5 +359,14 @@ const styles = StyleSheet.create({
         fontSize: 28,
         lineHeight: 35,
         width: '100%',
+    },
+    cards: { 
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: Palette.darkSienna,
+        borderRadius: 10,
+        padding: 10,
+        backgroundColor: '#c0bab34e',
+        width: 120,
     }
 });

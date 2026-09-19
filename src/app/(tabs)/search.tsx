@@ -39,6 +39,19 @@ export default function SearchScreen() {
         }
     };
 
+    useEffect(() => {
+        if (!query.trim()) {
+            setResults([]);
+            return;
+        }
+        const timer = setTimeout(() => {
+            handleSearch();
+        }, 500);
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [query]);
+
     const handleSave = async (item: any) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -77,7 +90,6 @@ export default function SearchScreen() {
                     style={styles.searchInput}
                     value={query}
                     onChangeText={(text) => setQuery(text)}
-                    onSubmitEditing={() => {handleSearch()}}
                 />
                 {query.length > 0 && (
                     <Pressable onPress={handleClear}>

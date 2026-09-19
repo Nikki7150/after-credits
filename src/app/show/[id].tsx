@@ -276,7 +276,7 @@ export default function ShowDetailScreen() {
                     </View>
                 )}
                 <Pressable onPress={() => handleStatus(show.status === 'want_to_watch' ? 'watched' : 'want_to_watch')} style={show.status === 'want_to_watch' ? styles.wantButton : styles.watchButton}>
-                    <Text style={show.status === 'watched' ? styles.meta2 : styles.meta1}>{show.status === 'watched' ? '☑ Watched' : '☐ Want to Watch'}</Text>
+                    <Text style={show.status === 'watched' ? styles.meta2 : styles.meta1}><Text style={{ fontFamily: 'Courier', fontSize: 30, }}>{show.status === 'watched' ? '☑' : '☐'}</Text>{show.status === 'watched' ? ' Watched' : ' Want to Watch'}</Text>
                 </Pressable>
                 {show.genres && show.genres.length > 0 && (
                     <Text style={styles.meta}>Genres: {show.genres.join(', ')}</Text>

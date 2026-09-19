@@ -1,7 +1,7 @@
 import { View, Text, FlatList, Pressable, StyleSheet, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router, useFocusEffect, useLocalSearchParams } from 'expo-router'; // runs every time screen in focus
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 
 import { supabase } from '@/lib/supabase';
 import { LANGUAGE_NAMES } from '@/lib/languages';
@@ -11,6 +11,8 @@ import { Palette } from '@/constants/theme';
 
 export default function CollectionsScreen() {
     const [shows, setShows] = useState<any[]>([]);
+    const [results, setResults] = useState<any[]>([]);
+    const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [collectionsList, setCollectionsList] = useState<any[]>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<string |null>(null);
@@ -27,6 +29,7 @@ export default function CollectionsScreen() {
             if (error) {
                 console.error('Error fetching shows:', error);
             } else if (data) {
+                setResults(data);
                 setShows(data || []);
             }
         } catch (error) {
@@ -41,6 +44,22 @@ export default function CollectionsScreen() {
         fetchShows();
         }, [fetchShows])
     );
+
+    useEffect(() => {
+        const searchTerm = query.trim().toLowerCase();
+        if (!searchTerm) {
+            setResults(shows);
+            fetchShows();
+            return;
+        }
+        const filtered = shows.filter((show) => (show.title || ' ').toLowerCase().includes(searchTerm));
+        setShows(filtered);
+    }, [query]);
+
+    const handleClear = () => {
+        setQuery('');
+        setShows([]);
+    };
 
     const grouped = shows.reduce((acc, show) => {
         const lang = show.language ?? 'unknown';
@@ -59,6 +78,21 @@ export default function CollectionsScreen() {
                 <Pressable onPress={() => router.back()}>
                     <Text style={{ color: Palette.softDove, fontWeight: 500, fontSize: 20, }}>く</Text>
                 </Pressable>
+            </View>
+            <View style={styles.search}>
+                <Text style={styles.searchIcon}>⌕</Text>
+                <TextInput
+                    placeholder="Search for shows..."
+                    style={styles.searchInput}
+                    value={query}
+                    onChangeText={(text) => setQuery(text)}
+                    placeholderTextColor={Palette.spicedHotChocolate}
+                />
+                {query.length > 0 && (
+                    <Pressable onPress={handleClear}>
+                        <Text style={styles.searchClear}>ㄨ</Text>
+                    </Pressable>
+                )}
             </View>
             <View style={{ flexDirection: 'row', marginTop: 10, }}>
                 <Pressable onPress={() => setSelectedLanguage(null)}>
@@ -133,4 +167,30 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
+    search: { 
+        flexDirection: 'row', 
+        gap: 10, 
+        alignItems: 'center',
+        backgroundColor: Palette.blackRaspberry,
+        borderWidth: 1,
+        borderColor: Palette.spicedHotChocolate,
+        borderRadius: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        marginTop: 10,
+    },
+    searchIcon: {
+        fontSize: 40,
+        color: Palette.moonRock,
+    },
+    searchInput: {
+        width: '80%',
+        fontSize: 27,
+        color: Palette.moonRock,
+        fontFamily: 'ReenieBeanie_400Regular',
+    },
+    searchClear: {
+        fontSize: 25,
+        color: Palette.moonRock,
+    }
 })

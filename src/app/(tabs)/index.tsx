@@ -1,8 +1,8 @@
 import * as Device from 'expo-device';
-import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Platform, Pressable, StyleSheet, TextInput, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useFocusEffect } from 'expo-router'; // runs every time screen in focus
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -14,7 +14,9 @@ import Icon from 'react-native-ico-material-design';
 
 export default function WatchlistScreen() {
   const [results, setResults] = useState<any[]>([]);
+  const [shows, setShows] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState('');
 
   const fetchShows = useCallback(async () => {
     setLoading(true);
@@ -27,6 +29,7 @@ export default function WatchlistScreen() {
         if (error) {
           console.error('Error fetching shows:', error);
         } else if (data) {
+          setShows(data);
           setResults(data || []);
         }
       } catch (error) {
@@ -35,11 +38,28 @@ export default function WatchlistScreen() {
         setLoading(false);
       }
   }, []);
+
   useFocusEffect(
     useCallback(() => {
       fetchShows();
     }, [fetchShows])
   );
+
+  useEffect(() => {
+    const searchTerm = query.trim().toLowerCase();
+    if (!searchTerm) {
+      setResults(shows);
+      fetchShows();
+      return;
+    }
+    const filtered = shows.filter((show) => (show.title || ' ').toLowerCase().includes(searchTerm));
+    setResults(filtered);
+  }, [query]);
+
+  const handleClear = () => {
+    setQuery('');
+    setResults([]);
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -48,6 +68,20 @@ export default function WatchlistScreen() {
         <Pressable onPress={fetchShows} style={{ alignSelf: 'flex-end', padding: 8, position: 'absolute', top: 100, right: 20, }}>
           <Icon name="refresh-button" width={20} height={20} color={Palette.darkSienna} />
         </Pressable>
+        <View style={styles.search}>
+          <Text style={styles.searchIcon}>⌕</Text>
+          <TextInput
+            placeholder="Search for shows..."
+            style={styles.searchInput}
+            value={query}
+            onChangeText={(text) => setQuery(text)}
+          />
+          {query.length > 0 && (
+            <Pressable onPress={handleClear}>
+              <Text style={styles.searchClear}>ㄨ</Text>
+            </Pressable>
+          )}
+        </View>
         {loading && <ThemedText type="subtitle" style={{ color: Palette.blackRaspberry, fontFamily: 'ReenieBeanie_400Regular', }}>Refreshing...</ThemedText>}
         {results.length > 0 ? (
           <FlatList
@@ -94,5 +128,30 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
     width: '100%',
+  },
+  search: { 
+    flexDirection: 'row', 
+    gap: 10, 
+    alignItems: 'center',
+    backgroundColor: Palette.softDove,
+    borderWidth: 1,
+    borderColor: Palette.moonRock,
+    borderRadius: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  searchIcon: {
+    fontSize: 40,
+    color: Palette.spicedHotChocolate,
+  },
+  searchInput: {
+    width: '80%',
+    fontSize: 27,
+    color: Palette.spicedHotChocolate,
+    fontFamily: 'ReenieBeanie_400Regular',
+  },
+  searchClear: {
+    fontSize: 25,
+    color: Palette.spicedHotChocolate,
   },
 });

@@ -13,7 +13,9 @@ export default function ShowCollectionDetails() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [shows, setShows] = useState<any>(null);
+    const [shows, setShows] = useState<any[]>([]);
+    const [results, setResults] = useState<any[]>([]);
+    const [query, setQuery] = useState('');
     const [text, setText] = useState('');
     const [isMenuVisible, setIsMenuVisible] = useState(false);
     const [collectionName, setCollectionName] = useState('');
@@ -56,6 +58,22 @@ export default function ShowCollectionDetails() {
     useEffect(() => {
         fetchShows();
     }, [fetchShows]);
+
+    useEffect(() => {
+        const searchTerm = query.trim().toLowerCase();
+        if (!searchTerm) {
+            setResults(shows);
+            fetchShows();
+            return;
+        }
+        const filtered = shows.filter((show) => (show.title || ' ').toLowerCase().includes(searchTerm));
+        setShows(filtered);
+    }, [query]);
+
+    const handleClear = () => {
+        setQuery('');
+        setShows([]);
+    };
 
     if (loading) {
         return (
@@ -123,6 +141,21 @@ export default function ShowCollectionDetails() {
                     </View>
                 </Pressable>
             </Modal>
+            <View style={styles.search}>
+                <Text style={styles.searchIcon}>⌕</Text>
+                <TextInput
+                    placeholder="Search for shows..."
+                    style={styles.searchInput}
+                    value={query}
+                    onChangeText={(text) => setQuery(text)}
+                    placeholderTextColor={Palette.spicedHotChocolate}
+                />
+                {query.length > 0 && (
+                    <Pressable onPress={handleClear}>
+                        <Text style={styles.searchClear}>ㄨ</Text>
+                    </Pressable>
+                )}
+            </View>
             {loading && <Text style={{ color: Palette.softDove, fontFamily: 'ReenieBeanie_400Regular', fontSize: 20, }}>Loading...</Text>}
             <FlatList
                 data={shows}
@@ -159,5 +192,31 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    search: { 
+        flexDirection: 'row', 
+        gap: 10, 
+        alignItems: 'center',
+        backgroundColor: Palette.blackRaspberry,
+        borderWidth: 1,
+        borderColor: Palette.spicedHotChocolate,
+        borderRadius: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
+        marginTop: 10,
+    },
+    searchIcon: {
+        fontSize: 40,
+        color: Palette.moonRock,
+    },
+    searchInput: {
+        width: '80%',
+        fontSize: 27,
+        color: Palette.moonRock,
+        fontFamily: 'ReenieBeanie_400Regular',
+    },
+    searchClear: {
+        fontSize: 25,
+        color: Palette.moonRock,
     },
 })

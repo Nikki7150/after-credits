@@ -129,7 +129,7 @@ export default function CollectionsScreen() {
                     fetchCollections();
                     fetchPosterPerCollection();
                 }} 
-                style={{ alignSelf: 'flex-end', padding: 8, position: 'absolute', top: 100, right: 20, }}
+                style={{ alignSelf: 'flex-end', padding: 8, position: 'absolute', top: 100, right: 10, }}
             >
                 <Icon name="refresh-button" width={20} height={20} color={Palette.softDove} />
             </Pressable>
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         alignItems: 'center',
         bottom: 25,
-        right: -350,
+        right: -300,
         boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.15)',
     },
     meta: {

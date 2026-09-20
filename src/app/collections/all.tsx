@@ -11,13 +11,10 @@ import { Palette } from '@/constants/theme';
 
 export default function CollectionsScreen() {
     const [shows, setShows] = useState<any[]>([]);
-    const [results, setResults] = useState<any[]>([]);
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
     const [active, setActive] = useState<'want_to_watch' | 'watched' | null>(null);
-
-    const filteredShows = selectedLanguage ? shows.filter((show) => (show.language ?? 'unknown') === selectedLanguage) : shows;
 
     const fetchShows = useCallback(async () => {
         setLoading(true);
@@ -29,7 +26,6 @@ export default function CollectionsScreen() {
             if (error) {
                 console.error('Error fetching shows:', error);
             } else if (data) {
-                setResults(data);
                 setShows(data || []);
             }
         } catch (error) {
@@ -45,43 +41,49 @@ export default function CollectionsScreen() {
         }, [fetchShows])
     );
 
-    useEffect(() => {
-        const searchTerm = query.trim().toLowerCase();
-        if (!searchTerm) {
-            setResults(shows);
-            fetchShows();
-            return;
-        }
-        const filtered = shows.filter((show) => (show.title || ' ').toLowerCase().includes(searchTerm));
-        setShows(filtered);
-    }, [query]);
-
     const handleClear = () => {
         setQuery('');
         setShows([]);
     };
 
-    useEffect(() => {
-        const filterStatus = active;
-        if (active == null) {
-            setResults(shows);
-            fetchShows();
-            return;
+    const visibleShows = useMemo(() => {
+        let result = shows;
+        if (selectedLanguage) {
+            result = result.filter((show) => (show.language ?? 'unknown') === selectedLanguage);
         }
-        const filtered = shows.filter((show) => (show.status).includes(filterStatus));
-        setShows(filtered);
-    }, [active]);
-
-    const grouped = shows.reduce((acc, show) => {
-        const lang = show.language ?? 'unknown';
-        if (!acc[lang]) {
-            acc[lang] = [];
+        if (active) {
+            result = result.filter((show) => show.status == active);
         }
-        acc[lang].push(show);
-        return acc;
-    }, {} as Record<string, any[]>);
+        const searchTerm = query.trim().toLowerCase();
+        if (searchTerm) {
+            result = result.filter((show) => (show.title || ' ').toLowerCase().includes(searchTerm));
+        }
+        return result;
+    }, [shows, selectedLanguage, active, query]);
 
-    const languageGroups = Object.entries(grouped) as [string, any[]][];
+    const showsForLanguageCounts = useMemo (() => {
+        let result = shows;
+        if (active) {
+            result = result.filter((show) => show.status == active);
+        }
+        const searchTerm = query.trim().toLowerCase();
+        if (searchTerm) {
+            result = result.filter((show) => (show.title || ' ').toLowerCase().includes(searchTerm));
+        }
+        return result;
+    }, [shows, active, query]);
+
+    const languageGroups = useMemo (() => {
+        const grouped = showsForLanguageCounts.reduce((acc, show) => {
+            const lang = show.language ?? 'unknown';
+            if (!acc[lang]) {
+                acc[lang] = [];
+            }
+            acc[lang].push(show);
+            return acc;
+        }, {} as Record<string, any[]>);
+        return Object.entries(grouped) as [string, any[]][];
+    }, [showsForLanguageCounts]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -109,7 +111,7 @@ export default function CollectionsScreen() {
                 <Pressable onPress={() => setSelectedLanguage(null)}>
                     <View style={[styles.filters, selectedLanguage === null && styles.filtersActive]}>
                         <Text style={{ fontSize: 10, fontWeight: '600', textAlign: 'center', fontFamily: 'RockSalt_400Regular', lineHeight: 20, }}>
-                            All ({shows.length})
+                            All ({showsForLanguageCounts.length})
                         </Text>
                     </View>
                 </Pressable>
@@ -132,7 +134,7 @@ export default function CollectionsScreen() {
             </View>
             <FlatList
             style={{ flex: 1 }}
-                data={filteredShows}
+                data={visibleShows}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <View style={{ flexDirection: 'row', gap: 10, padding: 10, alignItems: 'center', }}>

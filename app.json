@@ -4,14 +4,15 @@
     "slug": "after-credits",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/after-credits-icon.png",
     "scheme": "aftercredits",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow AfterCredits to access your photos so you can set a profile picture."
-      }
+      },
+      "bundleIdentifier": "com.nishka150.aftercredits"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +21,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nishka150.aftercredits"
     },
     "web": {
       "output": "static",
@@ -32,11 +34,13 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#441214",
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/after-credits-icon.png",
           "imageWidth": 76
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-image",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

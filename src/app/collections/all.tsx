@@ -14,8 +14,8 @@ export default function CollectionsScreen() {
     const [results, setResults] = useState<any[]>([]);
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
-    const [collectionsList, setCollectionsList] = useState<any[]>([]);
-    const [selectedLanguage, setSelectedLanguage] = useState<string |null>(null);
+    const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+    const [active, setActive] = useState<'want_to_watch' | 'watched' | null>(null);
 
     const filteredShows = selectedLanguage ? shows.filter((show) => (show.language ?? 'unknown') === selectedLanguage) : shows;
 
@@ -60,6 +60,17 @@ export default function CollectionsScreen() {
         setQuery('');
         setShows([]);
     };
+
+    useEffect(() => {
+        const filterStatus = active;
+        if (active == null) {
+            setResults(shows);
+            fetchShows();
+            return;
+        }
+        const filtered = shows.filter((show) => (show.status).includes(filterStatus));
+        setShows(filtered);
+    }, [active]);
 
     const grouped = shows.reduce((acc, show) => {
         const lang = show.language ?? 'unknown';
@@ -138,6 +149,17 @@ export default function CollectionsScreen() {
                     </View>
                 )}
             />
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40, alignItems: 'center', }}>
+                <Pressable onPress={() => setActive('want_to_watch')}>
+                    <Text style={active == 'want_to_watch' ? styles.tabsActive : styles.tabs}>Want to Watch</Text>
+                </Pressable>
+                <Pressable onPress={() => setActive('watched')}>
+                    <Text style={active == 'watched' ? styles.tabsActive : styles.tabs}>Watched</Text>
+                </Pressable>
+                <Pressable onPress={() => setActive(null)}>
+                    <Text style={styles.tabs}>X</Text>
+                </Pressable>
+            </View>
         </SafeAreaView>
     );
 }
@@ -192,5 +214,21 @@ const styles = StyleSheet.create({
     searchClear: {
         fontSize: 25,
         color: Palette.moonRock,
-    }
+    },
+    tabs: { 
+        color: Palette.moonRock, 
+        fontFamily: 'ReenieBeanie_400Regular', 
+        fontSize: 30, 
+        marginTop: 20,
+        padding: 5, 
+    },
+    tabsActive: { 
+        color: Palette.softDove, 
+        fontFamily: 'ReenieBeanie_400Regular', 
+        fontSize: 30, 
+        textDecorationLine: 'underline', 
+        marginTop: 20, 
+        padding: 5,
+        borderRadius: 10,
+    },
 })

@@ -61,6 +61,17 @@ export default function WatchlistScreen() {
     setResults([]);
   };
 
+  const handleStatus = async (item: any) => {
+    const newStatus = item.status === 'want_to_watch' ? 'watched' : 'want_to_watch';
+    setResults((prevResults) => prevResults.filter((show) => show.id !== item.id));
+    setShows((prevShows) => prevShows.filter((show) => show.id !== item.id));
+    const { error } = await supabase
+      .from('shows')
+      .update({ status: newStatus })
+      .eq('id', item.id);
+    if (error) console.error('error updating status: ', error);
+  };
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -90,16 +101,21 @@ export default function WatchlistScreen() {
             refreshing={loading}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <Link href={`/show/${item.id}`} asChild>
-                <Pressable>
-                  <ShowListItem
-                    title={item.title}
-                    year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
-                    posterPath={item.poster_path}
-                    page='watchlist'
-                  />
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Pressable onPress={() => handleStatus(item)}>
+                  <Text style={{ fontSize: 40, }}>{item.status === 'watched' ? '☑' : '☐'}</Text>
                 </Pressable>
-              </Link>
+                <Link href={`/show/${item.id}`} asChild style={{ flex: 1, }}>
+                  <Pressable>
+                    <ShowListItem
+                      title={item.title}
+                      year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
+                      posterPath={item.poster_path}
+                      page='watchlist'
+                    />
+                  </Pressable>
+                </Link>
+              </View>
             )}
           />
         ) : (

@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { ShowListItem } from '@/components/show-list-item';
 import { Palette } from '@/constants/theme';
 import Icon from 'react-native-ico-material-design';
+import AnimatedShowItem from '@/components/animated-show-item';
 
 export default function WatchlistScreen() {
   const [results, setResults] = useState<any[]>([]);
@@ -61,16 +62,19 @@ export default function WatchlistScreen() {
     setResults([]);
   };
 
-  const handleStatus = async (item: any) => {
+  const handleToggle = async (item: any) => {
     const newStatus = item.status === 'want_to_watch' ? 'watched' : 'want_to_watch';
-    setResults((prevResults) => prevResults.filter((show) => show.id !== item.id));
-    setShows((prevShows) => prevShows.filter((show) => show.id !== item.id));
     const { error } = await supabase
       .from('shows')
       .update({ status: newStatus })
       .eq('id', item.id);
     if (error) console.error('error updating status: ', error);
   };
+
+  const handleRemove = (id: string) => {
+    setResults((prevResults) => prevResults.filter((show) => show.id !== id));
+    setShows((prevShows) => prevShows.filter((show) => show.id !== id));
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -101,21 +105,7 @@ export default function WatchlistScreen() {
             refreshing={loading}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Pressable onPress={() => handleStatus(item)}>
-                  <Text style={{ fontSize: 40, }}>{item.status === 'watched' ? '☑' : '☐'}</Text>
-                </Pressable>
-                <Link href={`/show/${item.id}`} asChild style={{ flex: 1, }}>
-                  <Pressable>
-                    <ShowListItem
-                      title={item.title}
-                      year={item.release_date ? item.release_date.split('-')[0] : 'TBA'}
-                      posterPath={item.poster_path}
-                      page='watchlist'
-                    />
-                  </Pressable>
-                </Link>
-              </View>
+              <AnimatedShowItem item={item} onToggle={handleToggle} onRemove={handleRemove} />
             )}
           />
         ) : (
@@ -137,7 +127,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
+    paddingHorizontal: Spacing.two,
     paddingTop: Spacing.four,
     gap: Spacing.three,
     paddingBottom: Spacing.three,

@@ -32,7 +32,8 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: "row",
         gap: 10,
-        padding: 10,
+        padding: 0,
+        paddingLeft: 10,
     },
     poster: {
         width: 80,

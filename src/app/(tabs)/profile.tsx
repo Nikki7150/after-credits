@@ -223,7 +223,12 @@ export default function ProfileScreen() {
                     </Pressable>
                 </View>
             ) : (
-                <Icon name="round-account-button-with-user-inside" height={125} width={125} color={Palette.spicedHotChocolate} />
+                <View>
+                    <Icon name="round-account-button-with-user-inside" height={125} width={125} color={Palette.spicedHotChocolate} />
+                    <Pressable onPress={() => isProfileModal(true)} style={{ backgroundColor: Palette.softDove, borderRadius: 15, padding: 5, width: 25, position: 'absolute', right: 10, bottom: 0, }}>
+                        <Icon name="create-new-pencil-button" width={16} height={16} color={Palette.spicedHotChocolate} />
+                    </Pressable>
+                </View>
             )}
             <Modal visible={profileModal || usernameModal || passwordModal} transparent animationType="fade">
                 <Pressable style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center',  }} onPress={() => { isProfileModal(false); isUsernameModal(false); isPasswordModal(false); }}>

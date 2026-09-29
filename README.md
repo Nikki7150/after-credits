@@ -1,7 +1,13 @@
 # AfterCredits
 
 ## Description
-
+I am a huge binge watcher and I have an absurd amount of movies and tv shows that I want to watch or keep track of when they will be released. So I had resorted to making a note in my iPhone notes app and having a checklist there with different sections for each language and just dumped all the shows that I wanted to watch there and ticked them off as I went. It was a good system... until it got too long since all the checked shows are still there on screen. And I had to scroll hundreds of rows below to get to the show I want and sometimes I couldn't even remember what was the plot I thought was interesting of that particular show that got me excited and who the actors were. I had to keep searching it up on google and such since I got the names of those shows from my instagram doomscrolling. 
+And at the end... I got sick of it. So I thought why not just make my own app for it? It would teach me a new skill and it would help me organize my shows. It was a win-win situation. Until I had to sit through long boring tutorials to leanr React Native so as to actually start coding because I was so overwhelmed by the amount of files the npx React native base code pulled up. But I sat through the tutorial, finding similarities between React and React Native, taking down notes so I wouldn't forget and I got to it. 
+I got on Claude and started brainstorming the idea and figuring out the scope for the first simplest version of the app. I learned about TMDb, connected that to my project and to Supabase, did some sql querying alongside Claude to get my database to exactly what I needed and started coding. It was really awesome to see the changes being made on my actual phone, by connecting it through Expo Go app. When I didn't want to use my phone, I learned about iOS simulators on Mac and connected that to my project and it was soo cool. Like it was an actual real iPhone 17 screen on my mac and I could instantly see the results without having to unlock my phone. Then I locked in, searching up tutorials, learning stuff from Claude to make my coding experience simpler, little nic-nacs. And I finished the first version. 
+After which I did not take a break and directly went into creating a better more visually appealing version of the app, adding show cards, buttons/"pressable" in a bunch of places where it was needed, adding collections and sorting according to language and creating new collections, adding ui to the collection to make it look like a shelf of old movie dvd players with the cover of the movie for each spine. There was a lot of googling and reddit deepdives and react native doc reading to figure out everything. 
+When I thought I was finally done with the ui and tmdb stuff, I decided that it would be a good idea to add animation. Yay me... And for some reason, I thought it would be easy. Newsflash, it was not. I searched up some react native animation libraries and found reanimated and got that downloaded. After that, I searched up, and you guessed it, more tutorials and also got some help from Claude to learn and figure out how to get what I wanted. And then it was finally done!
+Sike! no. I still had to put it on my phone for daily use because of course I wanted to use it to make my life better. well, that made my life worse. I learned I would have to do something called "sideloading" using xcode to get past having to pay for an apple developer account. So I got to even more docs reading and Claude debugging and finally had my app on my phone, completely usable and I was overjoyed. This was my very first phone app and I think I did a pretty good job on it and im pretty satisfied. 
+You can check how this app works in my github release. There is a demo video on there that goes through basically every little detail I have added. I hope you have just as amazing time as I did on this app and I hope you have far less problems when sideloading the app. Anyways, thats all from me!  Ciao!
 
 ## Features
 - 
@@ -18,10 +24,21 @@
 - Google Fonts - expo-font
 
 ## Limitations
-- 
+- iOS only - no Android build has been tested, and some UI (SF Symbols in tab. bar) is iOS-specific, though Material symbol fallbacks are in place.
+- No Google/social sign-in. Only email and password
+- Pull to refresh doesn't work due to known bug in Expo's `Nativetabs` plus `FlatList` combination; replace dwith manual refresh buttons
+- Account deletion is a "soft delete"—it wipes user's data but not heir login credentials.
+- No offline support - every screen requires live connection from Supabase and TMDB
+- Free tier Apple sideloading expires every 7 days and needs reinstalling via Xcode
 
 ## Future Plans
-- 
+- Google OAuth Sign-in
+- Sort/filter for the Watchlist beyond search (by rating, slphabetically, most recently added)
+- Broaded Search wth ability to search using not only show names but also actors and release dates.
+- TextFlight or App Store release
+- Android testing and polish
+- Push notifications for upcoming release dates of saved shows
+- sharing collections with friends
 
 ## How to set up locally
 ### Prerequisites

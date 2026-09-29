@@ -2,15 +2,63 @@
 
 ## Description
 I am a huge binge watcher and I have an absurd amount of movies and tv shows that I want to watch or keep track of when they will be released. So I had resorted to making a note in my iPhone notes app and having a checklist there with different sections for each language and just dumped all the shows that I wanted to watch there and ticked them off as I went. It was a good system... until it got too long since all the checked shows are still there on screen. And I had to scroll hundreds of rows below to get to the show I want and sometimes I couldn't even remember what was the plot I thought was interesting of that particular show that got me excited and who the actors were. I had to keep searching it up on google and such since I got the names of those shows from my instagram doomscrolling. 
+
 And at the end... I got sick of it. So I thought why not just make my own app for it? It would teach me a new skill and it would help me organize my shows. It was a win-win situation. Until I had to sit through long boring tutorials to leanr React Native so as to actually start coding because I was so overwhelmed by the amount of files the npx React native base code pulled up. But I sat through the tutorial, finding similarities between React and React Native, taking down notes so I wouldn't forget and I got to it. 
+
 I got on Claude and started brainstorming the idea and figuring out the scope for the first simplest version of the app. I learned about TMDb, connected that to my project and to Supabase, did some sql querying alongside Claude to get my database to exactly what I needed and started coding. It was really awesome to see the changes being made on my actual phone, by connecting it through Expo Go app. When I didn't want to use my phone, I learned about iOS simulators on Mac and connected that to my project and it was soo cool. Like it was an actual real iPhone 17 screen on my mac and I could instantly see the results without having to unlock my phone. Then I locked in, searching up tutorials, learning stuff from Claude to make my coding experience simpler, little nic-nacs. And I finished the first version. 
+
 After which I did not take a break and directly went into creating a better more visually appealing version of the app, adding show cards, buttons/"pressable" in a bunch of places where it was needed, adding collections and sorting according to language and creating new collections, adding ui to the collection to make it look like a shelf of old movie dvd players with the cover of the movie for each spine. There was a lot of googling and reddit deepdives and react native doc reading to figure out everything. 
 When I thought I was finally done with the ui and tmdb stuff, I decided that it would be a good idea to add animation. Yay me... And for some reason, I thought it would be easy. Newsflash, it was not. I searched up some react native animation libraries and found reanimated and got that downloaded. After that, I searched up, and you guessed it, more tutorials and also got some help from Claude to learn and figure out how to get what I wanted. And then it was finally done!
-Sike! no. I still had to put it on my phone for daily use because of course I wanted to use it to make my life better. well, that made my life worse. I learned I would have to do something called "sideloading" using xcode to get past having to pay for an apple developer account. So I got to even more docs reading and Claude debugging and finally had my app on my phone, completely usable and I was overjoyed. This was my very first phone app and I think I did a pretty good job on it and im pretty satisfied. 
+
+Nope. I still had to put it on my phone for daily use because of course I wanted to use it to make my life better. well, that made my life worse. I learned I would have to do something called "sideloading" using xcode to get past having to pay for an apple developer account. So I got to even more docs reading and Claude debugging and finally had my app on my phone, completely usable and I was overjoyed. This was my very first phone app and I think I did a pretty good job on it and im pretty satisfied. 
 You can check how this app works in my github release. There is a demo video on there that goes through basically every little detail I have added. I hope you have just as amazing time as I did on this app and I hope you have far less problems when sideloading the app. Anyways, thats all from me!  Ciao!
 
 ## Features
-- 
+- As a guest user, you will be stuck on the login page
+- Signup using email, username and password
+- Login using email and password
+- Navigate through the app using the tabs shown at the bottom of the app screen
+- Watchlist page contains all the shows on your 'Want to Watch' list.
+    - You can see the movie cover, movie name and release date for each show as you scroll
+    - You can use the search bar to search up a show within this list
+    - Click on the checkbox next to each show to mark it as completed and watch the cute animation ;)
+    - Click on the show itself to open a dedicated show page for the specific show
+- Specific show page displays the cover of the show, the show name, and release date
+    - You can add a rating to each show by clicking on the stars
+    - You can write personal notes for each show filled with your thoughts and other stuff and save it
+    - You can toggle the 'Want to Watch' and 'Watched' button to move it between the two lists
+    - Read through the genres that the show is marked as and check which language it was made in
+    - You can also scroll through the main actors list with the picture of the actor, their name, and the name of the character they played.
+    - Click on the 'Add to Collection' button to open a dropdown with a list of all your personal collections and a button 'New Collection' to create a new collection right there and add this show to that collection.
+    - Click on the three dots at the top right corner above the movie poster to open a popup with a 'Remove from Watchlist' button to delete show from all your lists.
+- Search page shows a search bar which you can use to search from the TMDB database for every possible show or movie ever made.
+    - debouncing allows live search as you type
+    - displays all the shows with the words you have searched
+    - it displays the show's poster, name, and release date
+    - on the right side of each card is a '+' button which when clicked adds the particular show to your Want to Watch watchlist
+    - click on the 'X' on the search bar to clear search
+ - Collections page displays all the custom collections you have made and an 'All Shows' collection
+    - All Shows collection displays all the shows you have saved, regardless of watchlist type
+        - use the search bar to search through all the shows you have ever saved
+        - use the filters under the search bar to filter by language
+        - click on any of the show cards to go the the specific show page
+        - Switch between the 'Want to Watch' and 'Watched' filters to filter by watchlist type and watch as the number of shows in each language change
+    - Custom Collections page displays the name of your custom collection
+        - use the search bar to search for shows in this collection
+        - displays all the shows in this collection with a delete icon on the right side of each show to delete from this collection
+        - the three dots at the top of the page beside the custom name opens a popup with a 'Delete Collection' button to delete the entire collection from your profile
+    - Find the '+' button on the bottom right corner and click to open a popup to create a new collection
+- Profile page displays all the details of your profile created during signup
+    - displays your profile picture. click on the pencil icon to open a popup to upload a picture from your gallery. Click on Allow to access your gallery
+    - displays your username. click on the pencil to open a popup to update your username
+    - displays your email used to signup
+    - shows a password block with a pencil button which when clicked opens a popup to change password
+    - displays a small curated card list of the number of 'Total Shows', 'Watched' shows, and 'Want to Watch shows'
+    - displays your most watched language according to all the shows saved.
+    - click on the signout button to signout of this profile, which then takes you to the login page
+    - click on the delete account button which shows a popup to warn about deleting account. If you choose yes, it deletes your account which is permanent
+        - This is a soft delete and deletes your profile from the profiles backend, including deleting all the saved shows and collections and other details
+        - This does not actually delete the email from the Supabase users and will have to be manually removed. 
 
 ## Technologies used
 - React Native
